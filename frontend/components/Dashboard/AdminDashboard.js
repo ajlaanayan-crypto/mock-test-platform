@@ -1751,7 +1751,7 @@ export default function AdminDashboard() {
     // const [showAnalytics, setShowAnalytics] = useState(null); // REMOVED (URL Driven)
     // const [activeTab, setActiveTab] = useState('manage'); // REMOVED (URL Driven)
     const [tests, setTests] = useState([]);
-    const [sortTestsBy, setSortTestsBy] = useState('newest');
+    const [sortTestsBy, setSortTestsBy] = useState('alpha-asc');
     const [usersList, setUsersList] = useState([]);
     const [seriesList, setSeriesList] = useState([]);
     const [teamStats, setTeamStats] = useState([]);
