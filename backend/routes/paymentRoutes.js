@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const { protect, authorize } = require('../middleware/authMiddleware');
 const Razorpay = require('razorpay');
 const crypto = require('crypto');
 const { db } = require('../config/firebaseAdmin');
@@ -106,7 +107,7 @@ router.post('/validate-coupon', async (req, res) => {
 });
 
 // Get All Orders (Admin)
-router.get('/orders', async (req, res) => {
+router.get('/orders', protect, authorize('admin'), async (req, res) => {
     try {
         // ideally add admin auth middleware here
         const snapshot = await db.collection('orders').orderBy('createdAt', 'desc').limit(50).get();
@@ -249,7 +250,7 @@ router.post('/verify-payment', async (req, res) => {
         let isValid = false;
 
         // DEMO MODE BYPASS
-        if (razorpay_signature === 'DEMO_SUCCESS_SIGNATURE') {
+        if (razorpay_signature === 'DEMO_SUCCESS_SIGNATURE' && process.env.NODE_ENV !== 'production') {
             console.log("Processing DEMO Payment...");
             isValid = true;
         } else {

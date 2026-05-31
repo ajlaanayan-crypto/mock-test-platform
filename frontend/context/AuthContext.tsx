@@ -1,9 +1,14 @@
 'use client';
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { onAuthStateChanged, signOut as firebaseSignOut, User as FirebaseUser, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
-import { API_BASE_URL } from '@/lib/config';
+import { auth, db } from '@/lib/firebase';
+import { doc, getDoc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
+import { setWasmUrl } from '@lottiefiles/dotlottie-react';
+
+if (typeof window !== 'undefined') {
+    setWasmUrl('/dotlottie-player.wasm');
+}
 
 interface User extends FirebaseUser {
     name?: string;
@@ -36,9 +41,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 try {
                     // Fetch user data from Firestore directly
                     // This avoids auto-creation via API, allowing 'signup-details' flow to work.
-                    const { doc, getDoc } = await import("firebase/firestore");
-                    const { db } = await import("@/lib/firebase");
-
                     const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
 
                     if (userDoc.exists()) {
@@ -85,7 +87,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     return (
         <AuthContext.Provider value={{ user, loading, logout, signInWithGoogle }}>
-            {!loading && children}
+            {children}
         </AuthContext.Provider>
     );
 };

@@ -2,6 +2,7 @@ import { Plus_Jakarta_Sans, Manrope } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import Script from "next/script";
+import { Suspense } from "react";
 
 const plusJakartaSans = Plus_Jakarta_Sans({ 
   subsets: ["latin"], 
@@ -120,7 +121,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className={`${plusJakartaSans.variable} ${manrope.variable}`}>
         <AuthProvider>
-          {children}
+          <Suspense fallback={null}>
+            {children}
+          </Suspense>
         </AuthProvider>
         <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="lazyOnload" />
         <Script src="/js/three.r134.min.js" strategy="afterInteractive" />

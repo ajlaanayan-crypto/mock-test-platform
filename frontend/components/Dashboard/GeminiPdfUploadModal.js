@@ -301,40 +301,40 @@ const GeminiPdfUploadModal = ({ onUpload, onClose, allSeries = [] }) => {
                 className="fixed inset-0 z-[999] bg-slate-100/80 backdrop-blur-xl flex flex-col font-sans h-screen"
             >
                 {/* --- APEX BRANDED HEADER --- */}
-                <header className="h-16 bg-white border-b border-slate-200/60 flex items-center justify-between px-6 shrink-0 z-[110] shadow-sm">
+                <header className="h-16 bg-white/80 backdrop-blur-md border-b border-slate-200/60 flex items-center justify-between px-6 shrink-0 z-[110] shadow-xs">
                     <div className="flex items-center gap-4">
-                        <img src="/logo.png" className="h-9 w-auto" alt="Apex Mock Logo" />
-                        <div className="h-6 w-[1.5px] bg-slate-200 rounded-full" />
-                        <h1 className="text-lg font-black tracking-tight flex items-center gap-2">
-                            <span className="bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">AI WORKBENCH</span>
-                            <span className="px-2 py-0.5 bg-indigo-50 text-indigo-600 text-[10px] rounded-full font-bold uppercase tracking-widest border border-indigo-100 shadow-sm animate-pulse">Pro Edition</span>
+                        <img src="/logo.png" className="h-10 w-auto object-contain" alt="Apex Mock Logo" />
+                        <div className="h-6 w-[1.5px] bg-slate-200/60 rounded-full" />
+                        <h1 className="text-base font-black tracking-tight flex items-center gap-2">
+                            <span className="bg-gradient-to-r from-indigo-600 to-purple-650 bg-clip-text text-transparent uppercase">Apex x Gemini Uploader</span>
+                            <span className="px-2.5 py-0.5 bg-indigo-50 border border-indigo-100/60 text-indigo-700 text-[9px] rounded-full font-bold uppercase tracking-widest animate-pulse">AI Engine</span>
                         </h1>
                     </div>
 
                     <div className="flex items-center gap-3">
                         <button 
                             onClick={() => setShowMeta(true)}
-                            className="group flex items-center gap-2 px-4 py-2 bg-slate-50 hover:bg-white text-slate-600 rounded-xl font-bold text-xs transition-all border border-slate-200/60 shadow-sm"
+                            className="group flex items-center gap-2 px-4 py-2 bg-slate-50 hover:bg-slate-105 text-slate-600 rounded-xl font-bold text-xs transition-all border border-slate-200/60 shadow-xs"
                         >
                             <Settings size={14} className="group-hover:rotate-45 transition-transform" />
                             Project Specs
                         </button>
                         <button 
                             onClick={() => setShowCommandCentre(true)}
-                            className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-xs transition-all shadow-lg shadow-indigo-500/20 active:scale-95"
+                            className="flex items-center gap-2 px-4 py-2 bg-slate-50 hover:bg-slate-105 text-slate-700 rounded-xl font-bold text-xs transition-all border border-slate-200/60 shadow-xs"
                         >
                             <Command size={14} />
                             Bulk Ops
                         </button>
                         <button 
                             onClick={handlePublish} disabled={isPublishing || extractedQuestions.length === 0}
-                            className="flex items-center gap-2 px-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 disabled:bg-slate-300 text-white rounded-xl font-black text-xs transition-all shadow-lg shadow-emerald-500/20 active:scale-95"
+                            className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 disabled:from-slate-350 disabled:to-slate-400 text-white rounded-xl font-black text-xs transition-all shadow-md hover:shadow-lg shadow-indigo-500/10 active:scale-95"
                         >
                             {isPublishing ? <Loader2 className="animate-spin" size={14} /> : <ArrowUpCircle size={14} />}
                             SYNC QUEUE ({extractedQuestions.filter(q => q.isStaged).length})
                         </button>
-                        <div className="h-6 w-[1.5px] bg-slate-200 rounded-full mx-1" />
-                        <button onClick={onClose} className="p-2 hover:bg-rose-50 text-slate-400 hover:text-rose-500 rounded-lg transition-colors">
+                        <div className="h-6 w-[1.5px] bg-slate-200/60 rounded-full mx-1" />
+                        <button onClick={onClose} className="p-2 hover:bg-rose-50 text-slate-400 hover:text-rose-500 rounded-xl transition-all">
                             <X size={20} />
                         </button>
                     </div>
@@ -438,32 +438,33 @@ const GeminiPdfUploadModal = ({ onUpload, onClose, allSeries = [] }) => {
                             <div className="h-full flex flex-col items-center justify-center p-12 text-center">
                                 <motion.div 
                                     animate={{ y: [0, -10, 0] }} transition={{ repeat: Infinity, duration: 4 }}
-                                    className="w-24 h-24 bg-indigo-50 rounded-[40px] flex items-center justify-center mb-6 border-b-4 border-indigo-200 shadow-xl"
+                                    className="w-24 h-24 bg-indigo-50/50 rounded-[40px] flex items-center justify-center mb-6 border-b-4 border-indigo-150 shadow-lg"
                                 >
                                     <FileText size={40} className="text-indigo-600" />
                                 </motion.div>
-                                <h3 className="text-2xl font-black text-slate-800 mb-3 tracking-tight">Deploy Apex Intelligence</h3>
-                                <p className="text-slate-500 text-sm max-w-sm mb-8 font-medium">Upload your exam PDF to initiate high-precision AI question extraction and formatting.</p>
-                                <label className="cursor-pointer px-10 py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-3xl font-black text-md transition-all shadow-2xl shadow-indigo-500/40 active:scale-95 flex items-center gap-3">
-                                    <Layers size={18} /> SELECT PDF SOURCE
+                                <h3 className="text-2xl font-black text-slate-900 tracking-tight mb-3">Apex x Gemini Uploader</h3>
+                                <p className="text-slate-500 text-sm max-w-sm mb-8 font-medium">Connect Gemini AI to automatically digitize, parse, and LaTeX-format your assessment sheets.</p>
+                                <label className="cursor-pointer px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-650 hover:from-indigo-700 hover:to-purple-750 text-white rounded-2xl font-black text-sm transition-all shadow-md hover:shadow-lg shadow-indigo-500/10 hover:-translate-y-0.5 active:scale-95 flex items-center gap-2">
+                                    <img src="/logo.png" className="h-5 w-auto object-contain brightness-0 invert" alt="Apex Logo" />
+                                    <span>SELECT EXAM PDF</span>
                                     <input type="file" className="hidden" accept=".pdf" onChange={handleFileUpload} />
                                 </label>
                             </div>
                         )}
                         
                         {isScanning && (
-                            <div className="absolute inset-0 bg-white/60 backdrop-blur-md z-50 flex flex-col items-center justify-center p-8 text-center border-x border-slate-200">
+                            <div className="absolute inset-0 bg-white/75 backdrop-blur-md z-50 flex flex-col items-center justify-center p-8 text-center border-x border-slate-200/60">
                                 <div className="relative">
                                     <Loader2 className="text-indigo-600 animate-spin" size={64} strokeWidth={1} />
                                     <div className="absolute inset-0 flex items-center justify-center">
                                         <Brain size={24} className="text-indigo-600 animate-pulse" />
                                     </div>
                                 </div>
-                                <h4 className="mt-8 text-xl font-black text-slate-800 flex items-center gap-2">
-                                    <Sparkles size={18} className="text-amber-400" />
-                                    APEX AI EXTRACTION
+                                <h4 className="mt-8 text-xl font-black text-slate-900 flex items-center justify-center gap-2">
+                                    <img src="/logo.png" className="h-6 w-auto object-contain animate-pulse" alt="Apex Logo" />
+                                    APEX x GEMINI EXTRACTION
                                 </h4>
-                                <p className="mt-2 text-slate-500 font-bold uppercase tracking-widest text-[10px] bg-slate-100 px-4 py-1.5 rounded-full border border-slate-200">{scanStatus || 'Analysing structure...'}</p>
+                                <p className="mt-2 text-slate-550 font-bold uppercase tracking-widest text-[10px] bg-slate-100 px-4 py-1.5 border border-slate-200/60 rounded-full">{scanStatus || 'Analysing structure...'}</p>
                                 {scanError && (
                                     <p className="mt-2 text-rose-600 font-black uppercase tracking-widest text-[10px] bg-rose-50 px-4 py-1.5 rounded-full border border-rose-100">{scanError}</p>
                                 )}
@@ -492,8 +493,8 @@ const GeminiPdfUploadModal = ({ onUpload, onClose, allSeries = [] }) => {
                                                 {activeQuestionIndex + 1}
                                             </div>
                                             <div>
-                                                <h3 className="text-sm font-black text-slate-800 uppercase tracking-tight">Active Context</h3>
-                                                <p className="text-[11px] text-slate-400 font-bold uppercase tracking-widest">Apex AI Extraction #{activeQuestionIndex + 1}</p>
+                                                <h3 className="text-sm font-black text-slate-850 uppercase tracking-tight">Active Context</h3>
+                                                <p className="text-[11px] text-slate-400 font-bold uppercase tracking-widest">Gemini Extraction #{activeQuestionIndex + 1}</p>
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-2">
@@ -696,9 +697,9 @@ const GeminiPdfUploadModal = ({ onUpload, onClose, allSeries = [] }) => {
                                 </motion.div>
                             ) : (
                                 <div className="h-full flex flex-col items-center justify-center text-slate-400 p-12 text-center">
-                                    <Sparkle size={48} className="mb-6 opacity-20 animate-spin-slow text-indigo-600" />
-                                    <p className="text-sm font-bold opacity-60">Apex AI Editor Standby</p>
-                                    <p className="text-[10px] uppercase font-black tracking-widest mt-2 opacity-30">Select data from inventory to modulate</p>
+                                    <Sparkle size={48} className="mb-6 opacity-20 text-indigo-600 animate-spin" style={{ animationDuration: '12s' }} />
+                                    <p className="text-sm font-bold opacity-60">Gemini Uploader Standby</p>
+                                    <p className="text-[10px] uppercase font-black tracking-widest mt-2 opacity-30">Select a question from the inventory to preview and edit</p>
                                 </div>
                             )}
                         </AnimatePresence>
@@ -707,43 +708,43 @@ const GeminiPdfUploadModal = ({ onUpload, onClose, allSeries = [] }) => {
 
                 {/* --- APEX SUB-MODALS (LIGHT) --- */}
                 {showMeta && (
-                    <div className="fixed inset-0 z-[200] bg-slate-200/60 backdrop-blur-md flex items-center justify-center p-4">
-                        <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-white w-full max-w-2xl rounded-[40px] shadow-2xl overflow-hidden border border-slate-200/80">
-                            <div className="px-8 py-6 bg-slate-50 border-b border-slate-100 flex justify-between items-center">
-                                <h3 className="text-lg font-black text-slate-800 flex items-center gap-3">
-                                    <img src="/logo.png" className="h-6" alt="Apex Logo" />
-                                    AUTHORITY SPECS
+                    <div className="fixed inset-0 z-[200] bg-slate-900/40 backdrop-blur-md flex items-center justify-center p-4">
+                        <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-white w-full max-w-xl rounded-3xl shadow-xl overflow-hidden border border-slate-200/60 animate-in zoom-in-95 duration-200">
+                            <div className="px-8 py-6 bg-slate-50/50 border-b border-slate-100 flex justify-between items-center">
+                                <h3 className="text-base font-black text-slate-900 flex items-center gap-3 uppercase tracking-tight">
+                                    <img src="/logo.png" className="h-6 w-auto object-contain" alt="Apex Logo" />
+                                    Project Specifications
                                 </h3>
-                                <button onClick={() => setShowMeta(false)} className="p-2 hover:bg-white rounded-full transition-colors"><X size={20} /></button>
+                                <button onClick={() => setShowMeta(false)} className="p-2 hover:bg-rose-50 text-slate-400 hover:text-rose-600 rounded-xl transition-all"><X size={18} /></button>
                             </div>
-                            <div className="p-8 grid grid-cols-2 gap-x-8 gap-y-6">
+                            <div className="p-8 grid grid-cols-2 gap-x-6 gap-y-5">
                                 <div className="col-span-2 space-y-2">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase px-1">Identity</label>
-                                    <input value={testMeta.title} onChange={(e) => setTestMeta({...testMeta, title: e.target.value})} className="w-full bg-slate-50 border-2 border-slate-200 focus:border-indigo-500 rounded-2xl px-4 py-3 font-bold text-slate-700 outline-none transition-all" placeholder="Enter test title..." />
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider px-1">Test Title</label>
+                                    <input value={testMeta.title} onChange={(e) => setTestMeta({...testMeta, title: e.target.value})} className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-indigo-500 rounded-2xl px-4 py-3 text-sm font-semibold text-slate-800 outline-none transition-all" placeholder="Enter test title..." />
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase px-1">Target Series</label>
-                                    <select value={testMeta.seriesId} onChange={(e) => setTestMeta({...testMeta, seriesId: e.target.value})} className="w-full bg-slate-50 border-2 border-slate-200 focus:border-indigo-500 rounded-2xl px-4 py-3 font-bold text-slate-700 outline-none transition-all">
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider px-1">Target Series</label>
+                                    <select value={testMeta.seriesId} onChange={(e) => setTestMeta({...testMeta, seriesId: e.target.value})} className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-indigo-500 rounded-2xl px-4 py-3 text-sm font-semibold text-slate-805 outline-none transition-all cursor-pointer">
                                         <option value="">Select Series</option>
-                                        {allSeries.map(s => <option key={s._id} value={s._id}>{s.name}</option>)}
+                                        {allSeries.map(s => <option key={s._id || s.id} value={s._id || s.id}>{s.title || s.name}</option>)}
                                     </select>
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase px-1">Chronology (m)</label>
-                                    <input type="number" value={testMeta.duration} onChange={(e) => setTestMeta({...testMeta, duration: parseInt(e.target.value)})} className="w-full bg-slate-50 border-2 border-slate-200 focus:border-indigo-500 rounded-2xl px-4 py-3 font-bold text-slate-700 outline-none transition-all" />
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider px-1">Duration (minutes)</label>
+                                    <input type="number" value={testMeta.duration} onChange={(e) => setTestMeta({...testMeta, duration: parseInt(e.target.value)})} className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-indigo-500 rounded-2xl px-4 py-3 text-sm font-semibold text-slate-800 outline-none transition-all" />
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase px-1">Complexity</label>
-                                    <select value={testMeta.difficulty} onChange={(e) => setTestMeta({...testMeta, difficulty: e.target.value})} className="w-full bg-slate-50 border-2 border-slate-200 focus:border-indigo-500 rounded-2xl px-4 py-3 font-bold text-slate-700 outline-none transition-all">
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider px-1">Complexity</label>
+                                    <select value={testMeta.difficulty} onChange={(e) => setTestMeta({...testMeta, difficulty: e.target.value})} className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-indigo-500 rounded-2xl px-4 py-3 text-sm font-semibold text-slate-800 outline-none transition-all cursor-pointer">
                                         <option>Easy</option><option>Medium</option><option>Hard</option><option>Elite</option>
                                     </select>
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase px-1">Classification</label>
-                                    <input value={testMeta.subject} onChange={(e) => setTestMeta({...testMeta, subject: e.target.value})} className="w-full bg-slate-50 border-2 border-slate-200 focus:border-indigo-500 rounded-2xl px-4 py-3 font-bold text-slate-700 outline-none transition-all" />
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider px-1">Default Subject</label>
+                                    <input value={testMeta.subject} onChange={(e) => setTestMeta({...testMeta, subject: e.target.value})} className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-indigo-500 rounded-2xl px-4 py-3 text-sm font-semibold text-slate-800 outline-none transition-all" />
                                 </div>
                                 <div className="col-span-2 pt-4">
-                                    <button onClick={() => setShowMeta(false)} className="w-full py-4 bg-indigo-600 text-white rounded-2xl font-black text-md shadow-xl shadow-indigo-500/30 hover:bg-indigo-700 transition-all active:scale-95">LOCK SPECIFICATIONS</button>
+                                    <button onClick={() => setShowMeta(false)} className="w-full py-3.5 bg-indigo-650 hover:bg-indigo-700 text-white rounded-2xl font-black text-sm shadow-md hover:shadow-lg hover:shadow-indigo-500/10 transition-all active:scale-95">LOCK SPECIFICATIONS</button>
                                 </div>
                             </div>
                         </motion.div>
@@ -751,22 +752,25 @@ const GeminiPdfUploadModal = ({ onUpload, onClose, allSeries = [] }) => {
                 )}
 
                 {showCommandCentre && (
-                    <div className="fixed inset-0 z-[200] bg-slate-200/60 backdrop-blur-md flex items-center justify-center p-4">
-                        <motion.div initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="bg-white w-full max-w-xl rounded-[40px] shadow-2xl overflow-hidden border border-slate-200/80">
-                            <div className="px-8 py-6 bg-slate-50 border-b border-slate-100 flex items-center gap-3">
-                                <Command className="text-indigo-600" />
-                                <h3 className="text-lg font-black text-slate-800 uppercase tracking-tight">Global Metadata Hub</h3>
+                    <div className="fixed inset-0 z-[200] bg-slate-900/40 backdrop-blur-md flex items-center justify-center p-4">
+                        <motion.div initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="bg-white w-full max-w-xl rounded-3xl shadow-xl overflow-hidden border border-slate-200/60 animate-in zoom-in-95 duration-200">
+                            <div className="px-8 py-6 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                    <img src="/logo.png" className="h-6 w-auto object-contain" alt="Apex Logo" />
+                                    <h3 className="text-base font-black text-slate-900 uppercase tracking-tight">Global Actions</h3>
+                                </div>
+                                <button onClick={() => setShowCommandCentre(false)} className="p-2 hover:bg-rose-50 text-slate-400 hover:text-rose-600 rounded-xl transition-all"><X size={18} /></button>
                             </div>
-                            <div className="p-8 space-y-10">
-                                <div className="grid grid-cols-2 gap-8">
+                            <div className="p-8 space-y-8">
+                                <div className="grid grid-cols-2 gap-6">
                                     <div className="space-y-3">
                                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Universal Rewards</label>
-                                        <div className="flex gap-2.5">
+                                        <div className="flex gap-2">
                                             {[4, 1, 2].map(m => (
                                                 <button 
                                                     key={m} 
                                                     onClick={() => handleBulkAction('setMarks', m)} 
-                                                    className="flex-1 py-4 bg-slate-50 hover:bg-indigo-600 hover:text-white rounded-2xl font-black transition-all border border-slate-200/40 text-slate-700 hover:shadow-xl hover:shadow-indigo-500/20 active:scale-95"
+                                                    className="flex-1 py-3 bg-slate-50 border border-slate-200 hover:bg-indigo-600 hover:text-white rounded-xl font-black text-sm text-slate-700 transition-all hover:shadow-md hover:shadow-indigo-500/10 active:scale-95"
                                                 >
                                                     +{m}
                                                 </button>
@@ -775,12 +779,12 @@ const GeminiPdfUploadModal = ({ onUpload, onClose, allSeries = [] }) => {
                                     </div>
                                     <div className="space-y-3">
                                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Universal Penalty</label>
-                                        <div className="flex gap-2.5">
+                                        <div className="flex gap-2">
                                             {[1, 0, 2].map(m => (
                                                 <button 
                                                     key={m} 
                                                     onClick={() => handleBulkAction('setNegMarks', m)} 
-                                                    className="flex-1 py-4 bg-slate-50 hover:bg-rose-500 hover:text-white rounded-2xl font-black transition-all border border-slate-200/40 text-slate-700 hover:shadow-xl hover:shadow-rose-500/20 active:scale-95"
+                                                    className="flex-1 py-3 bg-slate-50 border border-slate-200 hover:bg-rose-500 hover:text-white rounded-xl font-black text-sm text-slate-700 transition-all hover:shadow-md hover:shadow-rose-500/10 active:scale-95"
                                                 >
                                                     -{m}
                                                 </button>
@@ -791,12 +795,12 @@ const GeminiPdfUploadModal = ({ onUpload, onClose, allSeries = [] }) => {
                                 
                                 <div className="space-y-3">
                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Subject Synchronization</label>
-                                    <div className="flex gap-2.5 flex-wrap">
+                                    <div className="flex gap-2 flex-wrap">
                                         {['Physics', 'Chemistry', 'Mathematics', 'Biology', 'Logical Reasoning'].map(s => (
                                             <button 
                                                 key={s} 
                                                 onClick={() => handleBulkAction('setSubject', s)} 
-                                                className="px-5 py-3 bg-white hover:bg-indigo-50 rounded-2xl text-[11px] font-black text-slate-600 border border-slate-200 shadow-sm hover:border-indigo-200 transition-all active:scale-95"
+                                                className="px-4 py-2 bg-slate-50 border border-slate-250 hover:bg-indigo-50 hover:text-indigo-650 rounded-xl text-xs font-bold text-slate-650 transition-all active:scale-95"
                                             >
                                                 {s}
                                             </button>
@@ -804,24 +808,24 @@ const GeminiPdfUploadModal = ({ onUpload, onClose, allSeries = [] }) => {
                                     </div>
                                 </div>
 
-                                <div className="pt-6 flex gap-4">
+                                <div className="pt-6 flex flex-col sm:flex-row gap-3">
                                     <button 
                                         onClick={() => handleBulkAction('stageAll', null)} 
-                                        className="flex-1 py-5 bg-indigo-600 text-white rounded-3xl font-black text-xs hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-500/20 active:scale-95"
+                                        className="flex-1 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-black text-xs transition-all shadow-md active:scale-95"
                                     >
                                         STAGE ALL ITEMS
                                     </button>
                                     <button 
                                         onClick={() => handleBulkAction('clearAllImages', null)} 
-                                        className="flex-1 py-5 bg-rose-50 text-rose-600 rounded-3xl font-black text-xs hover:bg-rose-500 hover:text-white transition-all shadow-sm active:scale-90"
+                                        className="flex-1 py-3.5 bg-rose-50 border border-rose-200 hover:bg-rose-500 hover:text-white text-rose-600 rounded-2xl font-black text-xs transition-all active:scale-95"
                                     >
                                         PURGE ALL MEDIA
                                     </button>
                                     <button 
                                         onClick={() => setShowCommandCentre(false)} 
-                                        className="flex-1 py-5 bg-slate-900 text-white rounded-3xl font-black text-xs hover:shadow-2xl shadow-indigo-500/30 transition-all active:scale-95"
+                                        className="flex-1 py-3.5 bg-slate-900 hover:bg-slate-800 text-white rounded-2xl font-black text-xs transition-all active:scale-95"
                                     >
-                                        RESUME DIGITIZER
+                                        RESUME UPLOADER
                                     </button>
                                 </div>
                             </div>

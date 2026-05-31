@@ -5,8 +5,9 @@ import { auth, db, storage } from '@/lib/firebase';
 import { doc, getDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { API_BASE_URL } from '@/lib/config';
-import { User, BookOpen, Heart, Phone, Loader2, CheckCircle, Mail, MapPin, Camera, Upload } from 'lucide-react';
+import { User, BookOpen, Heart, Phone, Loader2, CheckCircle, Mail, MapPin, Camera, Upload, LogOut } from 'lucide-react';
 import imageCompression from 'browser-image-compression';
+import { useAuth } from '@/context/AuthContext';
 
 export default function SignupDetailsPage() {
     const [name, setName] = useState('');
@@ -26,6 +27,7 @@ export default function SignupDetailsPage() {
     const [error, setError] = useState('');
     const fileInputRef = useRef(null);
     const router = useRouter();
+    const { logout } = useAuth();
 
     // Predefined Avatars (Using DiceBear Adventurer style for reliability)
     const AVATARS = [
@@ -271,7 +273,15 @@ export default function SignupDetailsPage() {
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-blue-50 p-4">
             <div className="max-w-md w-full bg-white p-6 md:p-8 rounded-2xl shadow-2xl border border-gray-100 my-8">
-                <div className="text-center mb-6 md:mb-8">
+                <div className="text-center mb-6 md:mb-8 relative">
+                    <button
+                        type="button"
+                        onClick={logout}
+                        className="absolute -top-3 right-0 px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl font-bold text-xs transition-all active:scale-95 flex items-center gap-1 shadow-xs border border-rose-200"
+                    >
+                        <LogOut size={12} />
+                        Logout
+                    </button>
                     <h1 className="text-xl md:text-2xl font-extrabold text-indigo-600 mb-2">APEX MOCK</h1>
                     <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Complete Your Profile</h2>
                     <p className="text-sm md:text-base text-gray-600">Tell us a bit about yourself to get started</p>

@@ -2,9 +2,12 @@
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
-import StudentDashboard from '@/components/Dashboard/StudentDashboard';
-import AdminDashboard from '@/components/Dashboard/AdminDashboard';
+import dynamic from 'next/dynamic';
+const StudentDashboard = dynamic(() => import('@/components/Dashboard/StudentDashboard'), { ssr: false });
+const AdminDashboard = dynamic(() => import('@/components/Dashboard/AdminDashboard'), { ssr: false });
 import DashboardLoader from '@/components/ui/DashboardLoader';
+
+import { LogOut, Sparkles } from 'lucide-react';
 
 export default function Dashboard() {
     const { user, loading, logout } = useAuth();
@@ -29,23 +32,36 @@ export default function Dashboard() {
     if (!user) return null;
 
     return (
-        <div className="min-h-screen bg-gray-50">
-            <nav className="bg-white shadow">
+        <div className="min-h-screen bg-slate-50/50">
+            <nav className="sticky top-0 z-50 backdrop-blur-md bg-white/75 border-b border-slate-200/60 shadow-xs">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between h-16">
-                        <div className="flex items-center">
-                            <span className="text-xl font-bold text-gray-900 cursor-pointer" onClick={() => router.push('/')}>Apex Mock Test</span>
+                        <div className="flex items-center gap-3">
+                            <span 
+                                className="text-xl font-black text-slate-900 tracking-tight cursor-pointer flex items-center gap-2" 
+                                onClick={() => router.push('/')}
+                            >
+                                <img src="/logo.png" alt="Apex Mock Test" className="h-10 md:h-12 w-auto object-contain" />
+                            </span>
                         </div>
-                        <div className="flex items-center gap-2 sm:gap-4">
-                            <span className="hidden sm:inline text-gray-700 text-sm sm:text-base">Welcome, {user.name}</span>
-                            <span className="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800 uppercase">
+                        <div className="flex items-center gap-3">
+                            <div className="flex flex-col text-right hidden sm:flex">
+                                <span className="text-sm font-bold text-slate-800 leading-tight">Welcome, {user.name}</span>
+                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5">{user.email}</span>
+                            </div>
+                            <span className={`px-3 py-1 text-[10px] font-black uppercase tracking-widest rounded-full border ${
+                                user.role === 'admin' 
+                                ? 'bg-indigo-50 text-indigo-700 border-indigo-200/60' 
+                                : 'bg-blue-50 text-blue-700 border-blue-200/60'
+                            }`}>
                                 {user.role}
                             </span>
                             <button
                                 onClick={logout}
-                                className="bg-red-500 hover:bg-red-600 text-white px-3 py-2 sm:px-4 rounded text-xs sm:text-sm transition-colors"
+                                className="flex items-center gap-1.5 px-4 py-2 bg-rose-50 hover:bg-rose-100/80 border border-rose-200 text-rose-600 rounded-xl font-bold text-xs transition-all active:scale-95 shadow-sm"
                             >
-                                Logout
+                                <LogOut size={13} />
+                                <span className="hidden sm:inline">Logout</span>
                             </button>
                         </div>
                     </div>

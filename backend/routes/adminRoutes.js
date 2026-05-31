@@ -3,7 +3,7 @@ const router = express.Router();
 const { db } = require('../config/firebaseAdmin');
 const TestSeries = require('../models/TestSeries');
 const { getPercentileData, updatePercentileData } = require('../models/PercentileData');
-const { protect } = require('../middleware/authMiddleware');
+const { protect, authorize } = require('../middleware/authMiddleware');
 
 const multer = require('multer');
 const { exec } = require('child_process');
@@ -27,7 +27,7 @@ router.options('/tests/parse-pdf-gemini', (req, res) => {
 });
 
 // Protect all admin routes
-router.use(protect);
+router.use(protect, authorize('admin'));
 
 // --- Admin Team Leaderboard ---
 // GET /api/admin/team-stats - Get all admins and their stats
@@ -308,6 +308,60 @@ router.post('/tests/parse-pdf-marker', upload.single('pdf'), async (req, res) =>
 });
 
 
+// Robust JSON Brace Extractor Fallback
+function robustBraceExtract(text) {
+    const list = [];
+    let braceCount = 0;
+    let currentBlock = "";
+    let inString = false;
+    let escaped = false;
+
+    for (let i = 0; i < text.length; i++) {
+        const char = text[i];
+        
+        if (char === '\\' && !escaped) {
+            escaped = true;
+            if (braceCount > 0) currentBlock += char;
+            continue;
+        }
+
+        if (char === '"' && !escaped) {
+            inString = !inString;
+        }
+
+        if (char === '{' && !inString) {
+            if (braceCount === 0) currentBlock = "";
+            braceCount++;
+        }
+
+        if (braceCount > 0) {
+            if (inString && (char === '\n' || char === '\r')) {
+                currentBlock += '\\n';
+            } else {
+                currentBlock += char;
+            }
+        }
+
+        if (char === '}' && !inString) {
+            if (braceCount > 0) {
+                braceCount--;
+                if (braceCount === 0) {
+                    try {
+                        const obj = JSON.parse(currentBlock);
+                        if (obj) list.push(obj);
+                    } catch (e) {
+                        console.error('[Parser Fallback Error] Failed to parse block:', e.message);
+                    }
+                    currentBlock = "";
+                }
+            }
+        }
+
+        escaped = false;
+    }
+    return list;
+}
+
 // --- Gemini AI PDF Parsing (Page-by-Page for Accuracy) ---
 // Ensure preflight works without auth token. NOTE: caller sends Authorization header only on POST.
 router.options('/tests/parse-pdf-gemini', (req, res) => {
@@ -355,13 +409,15 @@ router.post('/tests/parse-pdf-gemini', upload.single('pdf'), async (req, res) =>
         const { PDFDocument } = require('pdf-lib');
         
         const genAI = new GoogleGenerativeAI(apiKey);
-        const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+        const model = genAI.getGenerativeModel({ 
+            model: 'gemini-2.0-flash',
+            generationConfig: {
+                responseMimeType: 'application/json'
+            }
+        });
 
         const masterPrompt = `You are an expert exam question extraction AI.
-Extract EVERY question from this image/PDF page.
-
-OUTPUT FORMAT:
-Output each question as a SINGLE LINE JSON object (NDJSON).
+Extract EVERY question from this image/PDF page and return them as a JSON array of questions matching the specified schema.
 
 TEXT STYLE:
 - Use NATURAL HUMAN TEXT for all words and sentences.
@@ -369,7 +425,7 @@ TEXT STYLE:
 - Example: "A block of mass $m=2\\text{ kg}$ is placed on a $30^{\\circ}$ inclined plane."
 - NOT: "$\\text{A block of mass } m=2\\text{ kg} ...$" (Don't wrap everything in LaTeX).
 
-JSON Schema:
+JSON Schema for each object in the array:
 {
   "qNumber": <number>,
   "type": "mcq" | "msq" | "integer",
@@ -405,60 +461,35 @@ CRITICAL:
                     { text: masterPrompt }
                 ]);
 
-                const responseText = result.response.text();
+                let responseText = result.response.text().trim();
                 
-                // ✅ APEX BULLETPROOF PARSER: Char-by-char scanner for multi-line JSON
-                let braceCount = 0;
-                let currentBlock = "";
-                let inString = false;
-                let escaped = false;
+                // Strip markdown wrappers if present
+                if (responseText.startsWith('```')) {
+                    responseText = responseText.replace(/^```(?:json)?\n?/i, '').replace(/\n?```$/, '');
+                }
 
-                for (let i = 0; i < responseText.length; i++) {
-                    const char = responseText[i];
-                    
-                    if (char === '\\' && !escaped) {
-                        escaped = true;
-                        if (braceCount > 0) currentBlock += char;
-                        continue;
+                let questionsList = [];
+                try {
+                    const parsed = JSON.parse(responseText);
+                    if (Array.isArray(parsed)) {
+                        questionsList = parsed;
+                    } else if (parsed && typeof parsed === 'object') {
+                        questionsList = [parsed];
                     }
+                } catch (parseErr) {
+                    console.error('[Parser Warning] Failed to parse entire JSON response. Falling back to brace scanner.', parseErr.message);
+                    questionsList = robustBraceExtract(responseText);
+                }
 
-                    if (char === '"' && !escaped) {
-                        inString = !inString;
+                for (const q of questionsList) {
+                    if (q && q.text) {
+                        totalQuestionsCount++;
+                        sendEvent({ 
+                            status: 'question', 
+                            question: { ...q, qNumber: totalQuestionsCount }, 
+                            index: totalQuestionsCount 
+                        });
                     }
-
-                    if (!inString) {
-                        if (char === '{') {
-                            if (braceCount === 0) currentBlock = "";
-                            braceCount++;
-                        }
-                    }
-
-                    if (braceCount > 0) currentBlock += char;
-
-                    if (!inString) {
-                        if (char === '}') {
-                            braceCount--;
-                            if (braceCount === 0) {
-                                // Finalize the block
-                                try {
-                                    const q = JSON.parse(currentBlock);
-                                    if (q.text) {
-                                        totalQuestionsCount++;
-                                        sendEvent({ 
-                                            status: 'question', 
-                                            question: { ...q, qNumber: totalQuestionsCount }, 
-                                            index: totalQuestionsCount 
-                                        });
-                                    }
-                                } catch (e) {
-                                    console.error('[Parser Warning] Snippet failed JSON.parse');
-                                }
-                                currentBlock = "";
-                            }
-                        }
-                    }
-                    
-                    escaped = false;
                 }
             } catch (err) {
                 console.error('Gemini Extraction Page/Image Error:', err.message);
@@ -544,7 +575,12 @@ router.post('/tests/parse-image-gemini', async (req, res) => {
 
         const { GoogleGenerativeAI } = require('@google/generative-ai');
         const genAI = new GoogleGenerativeAI(apiKey);
-        const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+        const model = genAI.getGenerativeModel({ 
+            model: 'gemini-2.0-flash',
+            generationConfig: {
+                responseMimeType: 'application/json'
+            }
+        });
 
         // image format: data:image/png;base64,...
         const base64Data = image.split(',')[1];
@@ -553,10 +589,7 @@ router.post('/tests/parse-image-gemini', async (req, res) => {
         sendEvent({ status: 'started', message: 'Extracting questions from selection...' });
 
         const masterPrompt = `You are an expert exam question extraction AI.
-Extract EVERY question from this image snippet. 
-
-OUTPUT FORMAT:
-Output each question as a SINGLE LINE JSON object (NDJSON).
+Extract EVERY question from this image snippet and return them as a JSON array of questions matching the specified schema.
 
 TEXT STYLE:
 - Use NATURAL HUMAN TEXT for all words and sentences.
@@ -564,7 +597,7 @@ TEXT STYLE:
 - Example: "A block of mass $m=2\\text{ kg}$ is placed on a $30^{\\circ}$ inclined plane."
 - NOT: "$\\text{A block of mass } m=2\\text{ kg} ...$" (Don't wrap everything in LaTeX).
 
-JSON Schema:
+JSON Schema for each object in the array:
 {
   "qNumber": <number>,
   "type": "mcq" | "msq" | "integer",
@@ -598,60 +631,36 @@ CRITICAL:
             { text: masterPrompt }
         ]);
 
-        const responseText = result.response.text();
+        let responseText = result.response.text().trim();
         
-        // ✅ APEX BULLETPROOF PARSER: Char-by-char scanner for multi-line JSON
-        let braceCount = 0;
-        let currentBlock = "";
-        let inString = false;
-        let escaped = false;
+        // Strip markdown wrappers if present
+        if (responseText.startsWith('```')) {
+            responseText = responseText.replace(/^```(?:json)?\n?/i, '').replace(/\n?```$/, '');
+        }
+
+        let questionsList = [];
+        try {
+            const parsed = JSON.parse(responseText);
+            if (Array.isArray(parsed)) {
+                questionsList = parsed;
+            } else if (parsed && typeof parsed === 'object') {
+                questionsList = [parsed];
+            }
+        } catch (parseErr) {
+            console.error('[Parser Warning] Failed to parse entire JSON response. Falling back to brace scanner.', parseErr.message);
+            questionsList = robustBraceExtract(responseText);
+        }
+
         let questionCount = 0;
-
-        for (let i = 0; i < responseText.length; i++) {
-            const char = responseText[i];
-            
-            if (char === '\\' && !escaped) {
-                escaped = true;
-                if (braceCount > 0) currentBlock += char;
-                continue;
+        for (const q of questionsList) {
+            if (q && q.text) {
+                questionCount++;
+                sendEvent({ 
+                    status: 'question', 
+                    question: { ...q, qNumber: questionCount }, 
+                    index: questionCount 
+                });
             }
-
-            if (char === '"' && !escaped) {
-                inString = !inString;
-            }
-
-            if (!inString) {
-                if (char === '{') {
-                    if (braceCount === 0) currentBlock = "";
-                    braceCount++;
-                }
-            }
-
-            if (braceCount > 0) currentBlock += char;
-
-            if (!inString) {
-                if (char === '}') {
-                    braceCount--;
-                    if (braceCount === 0) {
-                        try {
-                            const q = JSON.parse(currentBlock);
-                            if (q.text) {
-                                questionCount++;
-                                sendEvent({ 
-                                    status: 'question', 
-                                    question: { ...q, qNumber: questionCount }, 
-                                    index: questionCount 
-                                });
-                            }
-                        } catch (e) {
-                            console.error('[Parser Warning] Selection snippet failed JSON.parse');
-                        }
-                        currentBlock = "";
-                    }
-                }
-            }
-            
-            escaped = false;
         }
 
         sendEvent({ 

@@ -1,7 +1,8 @@
 'use client';
 // Admin Dashboard Updated: 2026-02-04
 import { useState, useEffect } from 'react';
-import { Plus, Trash, Save, BookOpen, Clock, AlertCircle, User, List, LogOut, Users, Calendar, Image as ImageIcon, BarChart2, Eye, EyeOff, Search, Edit2, CheckCircle, UploadCloud, X, Download, Loader2, Layers, RefreshCcw, Zap, ChevronUp, ChevronDown, Upload, Info, Combine, AlertTriangle, Edit3, Award, Type, Sparkles } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Plus, Trash, Save, BookOpen, Clock, AlertCircle, User, List, LogOut, Users, Calendar, Image as ImageIcon, BarChart2, Eye, EyeOff, Search, Edit2, CheckCircle, UploadCloud, X, Download, Loader2, Layers, RefreshCcw, Zap, ChevronUp, ChevronDown, Upload, Info, Combine, AlertTriangle, Edit3, Award, Type, Sparkles, Tag, ListChecks, Trash2 } from 'lucide-react';
 import RichMathEditor from './RichMathEditor';
 import MathText from '@/components/ui/MathText';
 import { API_BASE_URL } from '@/lib/config';
@@ -77,29 +78,36 @@ const RescoreSection = ({ user }) => {
     const { loading, info, run } = useRescoreAllResults(user);
 
     return (
-        <div className="bg-yellow-50 rounded-lg border border-yellow-200 p-6 mb-6">
-            <h4 className="text-lg font-semibold text-yellow-800 flex items-center gap-2">
-                <RefreshCcw className="text-yellow-600" /> Rescore All Results
+        <div className="bg-amber-50/50 rounded-3xl border border-amber-200/60 p-8 mb-8 relative overflow-hidden group hover:shadow-md transition-all">
+            <div className="absolute -top-12 -right-12 w-32 h-32 bg-amber-100 rounded-full blur-2xl opacity-60 pointer-events-none"></div>
+            <h4 className="text-xl font-black text-amber-900 flex items-center gap-3 mb-2">
+                <RefreshCcw className="text-amber-600 group-hover:rotate-180 transition-transform duration-700" size={22} /> Rescore All Results
             </h4>
-            <p className="text-sm text-yellow-700 mb-4">
+            <p className="text-sm font-semibold text-amber-800/80 mb-6 max-w-2xl leading-relaxed">
                 Use this button to recompute scores for every stored result based on the latest answer/normalisation logic. Typically run after deploying fixes.
             </p>
             <button
                 onClick={run}
                 disabled={loading}
-                className={`px-5 py-2 rounded-md font-bold text-white ${loading ? 'bg-yellow-300' : 'bg-yellow-600 hover:bg-yellow-700'} disabled:opacity-50 transition`}
+                className={`px-6 py-3 rounded-2xl font-bold text-white shadow-sm transition-all flex items-center gap-2 ${loading ? 'bg-amber-300' : 'bg-amber-600 hover:bg-amber-700 hover:shadow-md'} disabled:opacity-50`}
             >
-                {loading ? 'Processing…' : 'Rescore Now'}
+                {loading ? (
+                    <span className="flex items-center gap-2">
+                        <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                        Processing...
+                    </span>
+                ) : 'Rescore Now'}
             </button>
             {info && (
-                <div className="mt-3 text-sm text-yellow-800">
+                <div className="mt-4 p-4 bg-white/80 backdrop-blur rounded-2xl border border-amber-200/50 text-sm font-bold text-amber-900 animate-in fade-in duration-300">
                     {info.error && <span className="text-red-600">Error: {info.error}</span>}
-                    {info.message && <>{info.message} (total {info.total}, updated {info.updated}, skipped {info.skipped}, errors {info.errors})</>}
+                    {info.message && <>{info.message} (Total: {info.total} • Updated: {info.updated} • Skipped: {info.skipped} • Errors: {info.errors})</>}
                 </div>
             )}
         </div>
     );
 };
+
 
 const TestPreviewModal = ({ test, onClose }) => {
     const [zoomedImg, setZoomedImg] = useState(null);
@@ -109,7 +117,13 @@ const TestPreviewModal = ({ test, onClose }) => {
         <>
             {zoomedImg && <ImageZoomModal imageUrl={zoomedImg} onClose={() => setZoomedImg(null)} />}
             <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center z-[70] p-4 sm:p-6">
-                <div className="bg-gray-50 rounded-3xl w-full max-w-5xl h-[90vh] flex flex-col shadow-2xl overflow-hidden border border-white/20 animate-in zoom-in-95 duration-200">
+                <motion.div 
+                    initial={{ opacity: 0, scale: 0.93 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.93 }}
+                    transition={{ type: "spring", duration: 0.4 }}
+                    className="bg-gray-50 rounded-3xl w-full max-w-5xl h-[90vh] flex flex-col shadow-2xl overflow-hidden border border-white/20"
+                >
                     {/* Header */}
                     <div className="p-6 sm:p-8 bg-white border-b border-gray-100 flex justify-between items-start shrink-0 relative overflow-hidden">
                         <div className="relative z-10 w-full pr-12">
@@ -314,7 +328,7 @@ const TestPreviewModal = ({ test, onClose }) => {
                             </div>
                         )}
                     </div>
-                </div>
+                </motion.div>
             </div>
         </>
     );
@@ -373,7 +387,13 @@ const AnalyticsModal = ({ testId, onClose }) => {
 
     return (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl h-[90vh] overflow-hidden flex flex-col">
+            <motion.div 
+                initial={{ opacity: 0, scale: 0.93 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.93 }}
+                transition={{ type: "spring", duration: 0.4 }}
+                className="bg-white rounded-lg shadow-xl w-full max-w-4xl h-[90vh] overflow-hidden flex flex-col"
+            >
                 <div className="p-6 border-b flex justify-between items-center bg-gray-50">
                     <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2"><BarChart2 className="text-blue-600" /> Test Analytics</h3>
                     <button onClick={onClose} className="text-gray-500 hover:text-gray-700 font-bold text-xl">&times;</button>
@@ -464,7 +484,7 @@ const AnalyticsModal = ({ testId, onClose }) => {
                         </div>
                     </div>
                 </div>
-            </div>
+            </motion.div>
         </div>
     );
 };
@@ -974,92 +994,96 @@ const CreateSeriesForm = ({ onSuccess, initialData = null }) => {
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <label className="block text-sm font-medium text-gray-700">Series Title</label>
-                    <input type="text" name="title" value={formData.title || ''} onChange={handleChange} required className="mt-1 block w-full border border-gray-300 rounded p-2" />
+                    <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Series Title</label>
+                    <input type="text" name="title" value={formData.title || ''} onChange={handleChange} required className="w-full bg-slate-50/50 hover:bg-slate-50 focus:bg-white border border-slate-200 focus:border-indigo-500 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-250 outline-none placeholder-slate-400" placeholder="e.g. JEE Main Ultimate Test Series" />
                 </div>
                 <div>
-                    <label className="block text-sm font-medium text-gray-700">Price (INR)</label>
-                    <input type="number" name="price" value={formData.price || 0} onChange={handleChange} required className="mt-1 block w-full border border-gray-300 rounded p-2" />
+                    <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Price (INR)</label>
+                    <input type="number" name="price" value={formData.price || 0} onChange={handleChange} required className="w-full bg-slate-50/50 hover:bg-slate-50 focus:bg-white border border-slate-200 focus:border-indigo-500 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-250 outline-none placeholder-slate-400" />
                 </div>
                 <div>
-                    <label className="block text-sm font-medium text-gray-700">Category</label>
-                    <select name="category" value={formData.category || 'JEE Main'} onChange={handleChange} className="mt-1 block w-full border border-gray-300 rounded p-2 bg-white">
-                        <option value="JEE Main">JEE Main</option>
-                        <option value="JEE Advanced">JEE Advanced</option>
-                        <option value="NEET">NEET</option>
-                        <option value="CAT">CAT</option>
-                        <option value="Board Exam">Board Exam</option>
-                        <option value="Others">Others</option>
-                    </select>
+                    <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Category</label>
+                    <div className="relative">
+                        <select name="category" value={formData.category || 'JEE Main'} onChange={handleChange} className="w-full bg-slate-50/50 hover:bg-slate-50 focus:bg-white border border-slate-200 focus:border-indigo-500 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-250 outline-none appearance-none cursor-pointer">
+                            <option value="JEE Main">JEE Main</option>
+                            <option value="JEE Advanced">JEE Advanced</option>
+                            <option value="NEET">NEET</option>
+                            <option value="CAT">CAT</option>
+                            <option value="Board Exam">Board Exam</option>
+                            <option value="Others">Others</option>
+                        </select>
+                        <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none text-slate-500">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
+                        </div>
+                    </div>
                 </div>
                 <div>
-                    <label className="block text-sm font-medium text-gray-700">Cover Image</label>
-                    <div className="mt-1 flex items-center gap-4">
-                        <input
-                            type="file"
-                            accept="image/*"
-                            onChange={handleImageUpload}
-                            className="block w-full text-sm text-gray-500
-                                file:mr-4 file:py-2 file:px-4
-                                file:rounded-full file:border-0
-                                file:text-sm file:font-semibold
-                                file:bg-indigo-50 file:text-indigo-700
-                                hover:file:bg-indigo-100"
-                        />
+                    <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Cover Image</label>
+                    <div className="flex items-center gap-4">
+                        <label className="flex-1 flex items-center justify-center border-2 border-dashed border-slate-200 hover:border-indigo-400 bg-slate-50/50 hover:bg-indigo-50/20 rounded-xl px-4 py-2.5 cursor-pointer transition-all duration-200">
+                            <span className="text-xs font-bold text-slate-600">Choose Image</span>
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={handleImageUpload}
+                                className="hidden"
+                            />
+                        </label>
                         {formData.image && (
-                            <img src={formData.image} alt="Preview" className="h-10 w-10 rounded object-cover border" />
+                            <div className="relative shrink-0 w-12 h-12 rounded-xl overflow-hidden border border-slate-200/80 shadow-inner">
+                                <img src={formData.image} alt="Preview" className="w-full h-full object-cover" />
+                            </div>
                         )}
                     </div>
-                    {/* Hidden input to keep state sync if needed or just use state directly */}
                 </div>
             </div>
             <div>
-                <label className="block text-sm font-medium text-gray-700">Description</label>
-                <textarea name="description" value={formData.description || ''} onChange={handleChange} className="mt-1 block w-full border border-gray-300 rounded p-2" />
+                <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Description</label>
+                <textarea name="description" value={formData.description || ''} onChange={handleChange} rows={3} className="w-full bg-slate-50/50 hover:bg-slate-50 focus:bg-white border border-slate-200 focus:border-indigo-500 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-250 outline-none placeholder-slate-400" placeholder="Describe the series features and syllabus coverage..." />
             </div>
             <div>
-                <label className="block text-sm font-medium text-gray-700">Features (Comma separated)</label>
-                <input type="text" name="features" value={formData.features || ''} onChange={handleChange} className="mt-1 block w-full border border-gray-300 rounded p-2" placeholder="10 Full Mocks, Video Analysis, expert support" />
+                <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Features (Comma separated)</label>
+                <input type="text" name="features" value={formData.features || ''} onChange={handleChange} className="w-full bg-slate-50/50 hover:bg-slate-50 focus:bg-white border border-slate-200 focus:border-indigo-500 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-250 outline-none placeholder-slate-400" placeholder="e.g. 10 Full Mocks, Video Analysis, Expert Support" />
             </div>
-            <div className="flex items-center">
-                <input type="checkbox" name="isActive" checked={formData.isActive || false} onChange={handleChange} className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" />
-                <label className="ml-2 block text-sm text-gray-900">Active (Visible to students)</label>
-            </div>
-            <div>
-                <label className="block text-sm font-medium text-gray-700">Expiry Date (Optional)</label>
-                <input type="date" name="expiryDate" value={formData.expiryDate || ''} onChange={handleChange} className="mt-1 block w-full border border-gray-300 rounded p-2" />
+            <div className="flex items-center gap-3 bg-slate-50/60 p-4 rounded-2xl border border-slate-100 max-w-fit">
+                <input type="checkbox" id="isActiveSeries" name="isActive" checked={formData.isActive || false} onChange={handleChange} className="h-5 w-5 text-indigo-600 focus:ring-indigo-500 border-slate-350 rounded-md cursor-pointer transition-all" />
+                <label htmlFor="isActiveSeries" className="text-sm font-bold text-slate-700 cursor-pointer select-none">Active &amp; Visible to students</label>
             </div>
             <div>
-                <label className="block text-sm font-medium text-gray-700 text-indigo-600 flex items-center gap-1">
-                    <BookOpen size={14} /> Private Institute Code
+                <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Expiry Date (Optional)</label>
+                <input type="date" name="expiryDate" value={formData.expiryDate || ''} onChange={handleChange} className="w-full bg-slate-50/50 hover:bg-slate-50 focus:bg-white border border-slate-200 focus:border-indigo-500 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-250 outline-none text-slate-600" />
+            </div>
+            <div>
+                <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2 text-indigo-600 flex items-center gap-2">
+                    <BookOpen size={16} /> Private Institute Code (Optional)
                 </label>
-                <input type="text" name="instituteCode" value={formData.instituteCode || ''} onChange={handleChange} className="mt-1 block w-full border border-indigo-200 rounded p-2 bg-indigo-50/50 focus:bg-white" placeholder="e.g. SCALER (Leave empty for public)" />
-                <p className="text-[10px] text-gray-500 mt-1">If set, only students with this code can see and buy this series.</p>
+                <input type="text" name="instituteCode" value={formData.instituteCode || ''} onChange={handleChange} className="w-full bg-indigo-50/30 hover:bg-indigo-50/50 focus:bg-white border border-indigo-150 focus:border-indigo-500 rounded-xl px-4 py-3 text-sm font-bold transition-all duration-250 outline-none placeholder-indigo-300 text-indigo-900" placeholder="e.g. APEX2026" />
+                <p className="text-[10px] text-slate-400 font-bold mt-1.5 uppercase tracking-wide">If set, only students with this code can see and buy this series.</p>
             </div>
 
             {/* Notes Bundling Section */}
-            <div className="border-t pt-4 mt-2">
-                <div className="flex items-center gap-2 mb-3">
-                    <span className="text-lg">📚</span>
-                    <h4 className="text-sm font-bold text-gray-800">Bundle Notes Sections with this Series</h4>
+            <div className="border-t border-slate-100 pt-6 mt-4">
+                <div className="flex items-center gap-3 mb-3">
+                    <span className="text-xl">📚</span>
+                    <h4 className="text-sm font-black text-slate-800 uppercase tracking-wider">Bundle Notes Sections</h4>
                 </div>
-                <p className="text-xs text-gray-500 mb-3">
-                    Students who buy this series will automatically get access to all notes in the selected sections.
+                <p className="text-xs font-semibold text-slate-500 mb-4 leading-relaxed">
+                    Students who purchase this series will automatically gain premium access to all notes within the selected sections.
                 </p>
                 {sectionsLoading ? (
-                    <p className="text-xs text-gray-400 animate-pulse">Loading sections for {formData.category}...</p>
+                    <p className="text-xs text-indigo-500 animate-pulse font-bold">Loading sections for {formData.category}...</p>
                 ) : allSections.length === 0 ? (
-                    <p className="text-xs text-gray-400">No notes sections found for {formData.category}. Add sections in the Notes Manager first.</p>
+                    <p className="text-xs text-slate-400 font-semibold italic">No notes sections found for {formData.category}. Add sections in the Notes Manager first.</p>
                 ) : (
-                    <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-56 overflow-y-auto pr-1">
                         {allSections.map(section => {
                             const isChecked = includedSections.includes(section.id);
                             return (
-                                <label key={section.id} className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition ${
-                                    isChecked ? 'border-indigo-400 bg-indigo-50' : 'border-gray-200 hover:border-indigo-200'
+                                <label key={section.id} className={`flex items-center gap-3.5 p-3.5 rounded-2xl border-2 cursor-pointer transition-all duration-200 select-none ${
+                                    isChecked ? 'border-indigo-500 bg-indigo-50/50 shadow-sm' : 'border-slate-100 hover:border-indigo-250 hover:bg-slate-50/50'
                                 }`}>
                                     <input
                                         type="checkbox"
@@ -1069,26 +1093,28 @@ const CreateSeriesForm = ({ onSuccess, initialData = null }) => {
                                                 isChecked ? prev.filter(id => id !== section.id) : [...prev, section.id]
                                             );
                                         }}
-                                        className="h-4 w-4 text-indigo-600 rounded"
+                                        className="h-5 w-5 text-indigo-600 border-slate-300 rounded transition-all cursor-pointer"
                                     />
-                                    <span className="text-base">{section.icon || '📁'}</span>
+                                    <span className="text-xl leading-none">{section.icon || '📁'}</span>
                                     <div className="flex-1 min-w-0">
-                                        <p className="text-sm font-semibold text-gray-800 truncate">{section.title}</p>
-                                        <p className="text-xs text-gray-500">{section.type === 'paid' ? '👑 Premium' : '✅ Free'} • {section._noteCount || 0} notes</p>
+                                        <p className="text-sm font-black text-slate-700 truncate">{section.title}</p>
+                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider mt-0.5">{section.type === 'paid' ? '👑 Premium' : '✅ Free'} • {section._noteCount || 0} notes</p>
                                     </div>
-                                    {isChecked && <span className="text-xs font-bold text-indigo-600 bg-indigo-100 px-2 py-0.5 rounded-full">Bundled ✓</span>}
+                                    {isChecked && <span className="text-[9px] font-black text-indigo-700 bg-indigo-100 border border-indigo-200 px-2 py-0.5 rounded-full uppercase tracking-wider">Bundled</span>}
                                 </label>
                             );
                         })}
                     </div>
                 )}
                 {includedSections.length > 0 && (
-                    <p className="text-xs font-semibold text-indigo-600 mt-2">✓ {includedSections.length} section(s) will be included with this series.</p>
+                    <p className="text-xs font-black text-indigo-650 mt-3 uppercase tracking-wide">✓ {includedSections.length} notes section(s) bundled.</p>
                 )}
             </div>
-            <button type="submit" disabled={loading} className="px-4 py-2 bg-indigo-600 text-white font-bold rounded hover:bg-indigo-700 disabled:opacity-50">
-                {loading ? (initialData ? 'Updating...' : 'Creating...') : (initialData ? 'Update Series' : 'Create Series')}
-            </button>
+            <div className="pt-2">
+                <button type="submit" disabled={loading} className="w-full sm:w-auto px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-sm rounded-2xl shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-50">
+                    {loading ? (initialData ? 'Updating...' : 'Creating...') : (initialData ? 'Update Series' : 'Create Series')}
+                </button>
+            </div>
         </form>
     );
 };
@@ -1532,34 +1558,34 @@ const CouponManager = ({ user }) => {
     };
 
     return (
-        <div className="bg-white rounded-xl shadow border border-gray-200">
-            <div className="p-6 border-b border-gray-100 flex justify-between items-center">
-                <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
-                    🎟️ Coupon Manager
+        <div className="bg-white rounded-3xl border border-slate-200/60 shadow-sm overflow-hidden flex flex-col group transition-all hover:shadow-md mb-8">
+            <div className="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-zinc-50/50">
+                <h3 className="text-lg font-black text-slate-900 tracking-tight flex items-center gap-2">
+                    <img src="/logo.png" alt="Apex Logo" className="h-5 w-auto object-contain" /> Coupon Manager
                 </h3>
-                <button onClick={openCreate} className="px-4 py-2 bg-indigo-600 text-white rounded-lg font-bold text-sm hover:bg-indigo-700 flex items-center gap-2">
-                    + Create Coupon
+                <button onClick={openCreate} className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-bold text-xs shadow-sm hover:shadow transition-all flex items-center gap-2">
+                    <Plus size={14} /> Create Coupon
                 </button>
             </div>
 
-            {success && <div className="mx-6 mt-4 p-3 bg-green-50 text-green-700 border border-green-200 rounded-lg text-sm font-bold">{success}</div>}
-            {error && !showForm && <div className="mx-6 mt-4 p-3 bg-red-50 text-red-700 border border-red-200 rounded-lg text-sm font-bold">{error}</div>}
+            {success && <div className="mx-8 mt-6 p-4 bg-emerald-50 text-emerald-850 border border-emerald-250 rounded-2xl text-sm font-bold animate-in fade-in duration-300">{success}</div>}
+            {error && !showForm && <div className="mx-8 mt-6 p-4 bg-rose-50 text-rose-850 border border-rose-250 rounded-2xl text-sm font-bold animate-in fade-in duration-300">{error}</div>}
 
             {/* Create / Edit Form */}
             {showForm && (
-                <div className="p-6 border-b border-gray-100 bg-indigo-50/30 space-y-4">
-                    <h4 className="font-bold text-gray-700">{editingCoupon ? 'Edit Coupon' : 'New Coupon'}</h4>
-                    {error && <div className="p-3 bg-red-50 text-red-700 border border-red-200 rounded-lg text-sm">{error}</div>}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="p-8 border-b border-slate-150 bg-indigo-50/20 space-y-6 animate-in slide-in-from-top-4 duration-300">
+                    <h4 className="text-sm font-black text-indigo-900 uppercase tracking-wider">{editingCoupon ? 'Edit Coupon' : 'New Coupon'}</h4>
+                    {error && <div className="p-4 bg-rose-50 text-rose-800 border border-rose-250 rounded-2xl text-sm font-bold">{error}</div>}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         <div>
-                            <label className="block text-xs font-bold text-gray-600 mb-1">Coupon Code *</label>
+                            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Coupon Code *</label>
                             <input value={form.code} onChange={e => setForm(p => ({...p, code: e.target.value.toUpperCase()}))} placeholder="e.g. SAVE50" maxLength={20}
-                                className="w-full border border-gray-300 rounded-lg px-3 py-2 font-mono font-bold text-sm uppercase focus:ring-2 focus:ring-indigo-400 outline-none" />
+                                className="w-full bg-slate-50 border border-slate-200/60 rounded-2xl px-4 py-3 text-sm font-semibold text-slate-800 placeholder-slate-400 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all uppercase font-mono" />
                         </div>
                         <div>
-                            <label className="block text-xs font-bold text-gray-600 mb-1">Discount Type *</label>
+                            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Discount Type *</label>
                             <select value={form.discountType} onChange={e => setForm(p => ({...p, discountType: e.target.value}))}
-                                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-400 outline-none">
+                                className="w-full bg-slate-50 border border-slate-200/60 rounded-2xl px-4 py-3 text-sm font-semibold text-slate-800 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all appearance-none cursor-pointer">
                                 <option value="percent">Percentage (%)</option>
                                 <option value="flat">Flat Amount (₹)</option>
                                 <option value="free">100% Free</option>
@@ -1567,58 +1593,59 @@ const CouponManager = ({ user }) => {
                         </div>
                         {form.discountType !== 'free' && (
                             <div>
-                                <label className="block text-xs font-bold text-gray-600 mb-1">Discount Value *</label>
+                                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Discount Value *</label>
                                 <input type="number" min="0" max={form.discountType === 'percent' ? 100 : undefined} value={form.discountValue} onChange={e => setForm(p => ({...p, discountValue: e.target.value}))}
                                     placeholder={form.discountType === 'percent' ? '0-100' : '₹ amount'}
-                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-400 outline-none" />
+                                    className="w-full bg-slate-50 border border-slate-200/60 rounded-2xl px-4 py-3 text-sm font-semibold text-slate-800 placeholder-slate-400 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all" />
                             </div>
                         )}
                         <div>
-                            <label className="block text-xs font-bold text-gray-600 mb-1">Max Total Uses (0 = unlimited)</label>
+                            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Max Total Uses (0 = unlimited)</label>
                             <input type="number" min="0" value={form.maxUses} onChange={e => setForm(p => ({...p, maxUses: e.target.value}))}
-                                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-400 outline-none" />
+                                className="w-full bg-slate-50 border border-slate-200/60 rounded-2xl px-4 py-3 text-sm font-semibold text-slate-800 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all" />
                         </div>
                         <div>
-                            <label className="block text-xs font-bold text-gray-600 mb-1">Max Uses Per User</label>
+                            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Max Uses Per User</label>
                             <input type="number" min="0" value={form.maxUsesPerUser} onChange={e => setForm(p => ({...p, maxUsesPerUser: e.target.value}))}
-                                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-400 outline-none" />
+                                className="w-full bg-slate-50 border border-slate-200/60 rounded-2xl px-4 py-3 text-sm font-semibold text-slate-800 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all" />
                         </div>
                         <div>
-                            <label className="block text-xs font-bold text-gray-600 mb-1">Active</label>
+                            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Status</label>
                             <button onClick={() => setForm(p => ({...p, isActive: !p.isActive}))}
-                                className={`px-4 py-2 rounded-lg font-bold text-sm border-2 ${form.isActive ? 'bg-green-100 border-green-400 text-green-800' : 'bg-gray-100 border-gray-300 text-gray-600'}`}>
+                                className={`w-full px-4 py-3 rounded-2xl font-black text-xs uppercase tracking-wider border transition-all ${form.isActive ? 'bg-emerald-50 border-emerald-250 text-emerald-850' : 'bg-rose-50 border-rose-250 text-rose-850'}`}>
                                 {form.isActive ? '✅ Active' : '⛔ Inactive'}
                             </button>
                         </div>
                         <div>
-                            <label className="block text-xs font-bold text-gray-600 mb-1">Valid From</label>
+                            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Valid From</label>
                             <input type="datetime-local" value={form.validFrom} onChange={e => setForm(p => ({...p, validFrom: e.target.value}))}
-                                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-400 outline-none" />
+                                className="w-full bg-slate-50 border border-slate-200/60 rounded-2xl px-4 py-3 text-sm font-semibold text-slate-800 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all" />
                         </div>
                         <div>
-                            <label className="block text-xs font-bold text-gray-600 mb-1">Valid Until</label>
+                            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Valid Until</label>
                             <input type="datetime-local" value={form.validUntil} onChange={e => setForm(p => ({...p, validUntil: e.target.value}))}
-                                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-400 outline-none" />
+                                className="w-full bg-slate-50 border border-slate-200/60 rounded-2xl px-4 py-3 text-sm font-semibold text-slate-800 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all" />
                         </div>
                     </div>
                     <div>
-                        <label className="block text-xs font-bold text-gray-600 mb-2">Applicable For</label>
+                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2.5 ml-1">Applicable For</label>
                         <div className="flex flex-wrap gap-2">
                             {['all', ...EXAM_FIELDS].map(field => (
                                 <button key={field} onClick={() => handleFieldToggle(field)}
-                                    className={`px-3 py-1 rounded-full text-xs font-bold border transition-colors ${(form.applicableFields || []).includes(field)
-                                        ? 'bg-indigo-600 text-white border-indigo-600'
-                                        : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'}`}>
+                                    className={`px-4 py-2 rounded-full text-xs font-black border transition-all ${
+                                        (form.applicableFields || []).includes(field)
+                                        ? 'bg-indigo-650 text-white border-indigo-650 shadow-sm scale-105'
+                                        : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'}`}>
                                     {field === 'all' ? '🌍 All Fields' : field}
                                 </button>
                             ))}
                         </div>
                     </div>
                     <div className="flex gap-3 pt-2">
-                        <button onClick={handleSave} disabled={saving} className="px-6 py-2 bg-indigo-600 text-white rounded-lg font-bold text-sm hover:bg-indigo-700 disabled:opacity-50">
-                            {saving ? 'Saving...' : editingCoupon ? '💾 Save Changes' : '✨ Create Coupon'}
+                        <button onClick={handleSave} disabled={saving} className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-bold text-sm shadow-md hover:shadow-lg transition-all disabled:opacity-50 flex items-center gap-2">
+                            <Save size={16} /> {saving ? 'Saving...' : editingCoupon ? 'Save Changes' : 'Create Coupon'}
                         </button>
-                        <button onClick={() => { setShowForm(false); setError(null); }} className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg font-bold text-sm hover:bg-gray-50">Cancel</button>
+                        <button onClick={() => { setShowForm(false); setError(null); }} className="px-5 py-2.5 text-slate-650 border border-slate-200 rounded-2xl font-bold text-sm hover:bg-slate-50 transition-all">Cancel</button>
                     </div>
                 </div>
             )}
@@ -1626,48 +1653,50 @@ const CouponManager = ({ user }) => {
             {/* Coupon List */}
             <div className="overflow-x-auto">
                 {loading ? (
-                    <div className="text-center py-12 text-gray-400 font-medium">Loading coupons...</div>
+                    <div className="text-center py-16 text-slate-400 font-bold animate-pulse">Loading coupons...</div>
                 ) : coupons.length === 0 ? (
-                    <div className="text-center py-12 text-gray-400">
-                        <div className="text-4xl mb-3">🎟️</div>
-                        <p className="font-medium">No coupons yet. Create one to get started!</p>
+                    <div className="text-center py-16 text-slate-400">
+                        <div className="text-5xl mb-4">🎟️</div>
+                        <p className="font-bold text-slate-500">No coupons yet. Create one to get started!</p>
                     </div>
                 ) : (
-                    <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-50">
+                    <table className="min-w-full divide-y divide-slate-100">
+                        <thead className="bg-slate-50/70">
                             <tr>
-                                <th className="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase">Code</th>
-                                <th className="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase">Discount</th>
-                                <th className="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase">For</th>
-                                <th className="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase">Uses</th>
-                                <th className="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase">Per User</th>
-                                <th className="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase">Validity</th>
-                                <th className="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase">Status</th>
-                                <th className="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase">Actions</th>
+                                <th className="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Code</th>
+                                <th className="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Discount</th>
+                                <th className="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">For</th>
+                                <th className="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Uses</th>
+                                <th className="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Per User</th>
+                                <th className="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Validity</th>
+                                <th className="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
+                                <th className="px-6 py-4 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">Actions</th>
                             </tr>
                         </thead>
-                        <tbody className="bg-white divide-y divide-gray-100">
+                        <tbody className="bg-white divide-y divide-slate-100">
                             {coupons.map(c => (
-                                <tr key={c.id} className="hover:bg-gray-50">
-                                    <td className="px-4 py-3 whitespace-nowrap font-mono font-bold text-gray-900 text-sm">{c.code}</td>
-                                    <td className="px-4 py-3 whitespace-nowrap">{discountLabel(c)}</td>
-                                    <td className="px-4 py-3 whitespace-nowrap text-xs text-gray-600">{(c.applicableFields || ['all']).join(', ')}</td>
-                                    <td className="px-4 py-3 whitespace-nowrap text-sm">
-                                        <span className="font-bold text-gray-800">{c.usedCount || 0}</span>
-                                        <span className="text-gray-400"> / {c.maxUses > 0 ? c.maxUses : '∞'}</span>
+                                <tr key={c.id} className="hover:bg-slate-50/50 transition-colors">
+                                    <td className="px-6 py-4.5 whitespace-nowrap font-mono font-bold text-slate-900 text-sm">{c.code}</td>
+                                    <td className="px-6 py-4.5 whitespace-nowrap">{discountLabel(c)}</td>
+                                    <td className="px-6 py-4.5 whitespace-nowrap text-xs font-semibold text-slate-650">{(c.applicableFields || ['all']).join(', ')}</td>
+                                    <td className="px-6 py-4.5 whitespace-nowrap text-sm">
+                                        <span className="font-bold text-slate-800">{c.usedCount || 0}</span>
+                                        <span className="text-slate-400"> / {c.maxUses > 0 ? c.maxUses : '∞'}</span>
                                     </td>
-                                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-600">{c.maxUsesPerUser > 0 ? c.maxUsesPerUser : '∞'}x</td>
-                                    <td className="px-4 py-3 whitespace-nowrap text-xs text-gray-500">
+                                    <td className="px-6 py-4.5 whitespace-nowrap text-sm font-semibold text-slate-600">{c.maxUsesPerUser > 0 ? c.maxUsesPerUser : '∞'}x</td>
+                                    <td className="px-6 py-4.5 whitespace-nowrap text-xs font-semibold text-slate-500">
                                         {c.validUntil ? `Until ${new Date(c.validUntil).toLocaleDateString()}` : 'No expiry'}
                                     </td>
-                                    <td className="px-4 py-3 whitespace-nowrap">
-                                        <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${c.isActive ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                                    <td className="px-6 py-4.5 whitespace-nowrap">
+                                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border ${c.isActive ? 'bg-green-50 text-green-700 border-green-200' : 'bg-red-50 text-red-700 border-red-200'}`}>
                                             {c.isActive ? 'Active' : 'Inactive'}
                                         </span>
                                     </td>
-                                    <td className="px-4 py-3 whitespace-nowrap flex gap-2">
-                                        <button onClick={() => openEdit(c)} className="px-3 py-1 bg-blue-50 text-blue-700 rounded-md text-xs font-bold hover:bg-blue-100">Edit</button>
-                                        <button onClick={() => handleDelete(c.id)} className="px-3 py-1 bg-red-50 text-red-700 rounded-md text-xs font-bold hover:bg-red-100">Delete</button>
+                                    <td className="px-6 py-4.5 whitespace-nowrap text-right text-sm font-medium">
+                                        <div className="flex justify-end gap-2">
+                                            <button onClick={() => openEdit(c)} className="px-3.5 py-1.5 bg-indigo-50 border border-indigo-100 text-indigo-700 rounded-xl text-xs font-black hover:bg-indigo-100 transition-all">Edit</button>
+                                            <button onClick={() => handleDelete(c.id)} className="px-3.5 py-1.5 bg-red-50 border border-red-100 text-red-700 rounded-xl text-xs font-black hover:bg-red-100 transition-all">Delete</button>
+                                        </div>
                                     </td>
                                 </tr>
                             ))}
@@ -1728,6 +1757,17 @@ export default function AdminDashboard() {
     const [teamStats, setTeamStats] = useState([]);
     const [revenueStats, setRevenueStats] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [processingTests, setProcessingTests] = useState({});
+    
+    const setTestProcessing = (testId, action, isProcessing) => {
+        setProcessingTests(prev => ({
+            ...prev,
+            [testId]: {
+                ...(prev[testId] || {}),
+                [action]: isProcessing
+            }
+        }));
+    };
     const [viewingStudent, setViewingStudent] = useState(null); // Report Modal State
     const [editingSeries, setEditingSeries] = useState(null); // Series Edit Modal State
     const [editingTest, setEditingTest] = useState(null); // Test Edit Modal State
@@ -2833,45 +2873,38 @@ export default function AdminDashboard() {
                 </div>
             )}
 
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-0 border-b border-gray-200 gap-2">
-                <div className="flex items-center gap-3">
-                    <img src="/logo.png" alt="APEX MOCK" className="h-16 w-auto" />
-                    <h2 className="text-2xl sm:text-3xl font-bold text-gray-800">Admin Controls</h2>
-                </div>
-                <div className="flex overflow-x-auto space-x-1 sm:space-x-2 pb-2 sm:pb-0">
-                    <button onClick={() => setActiveTab('profile')} className={`px-3 py-2 sm:px-4 rounded-md text-sm whitespace-nowrap ${activeTab === 'profile' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-600'}`}>Profile</button>
-                    <button onClick={() => setActiveTab('manage')} className={`px-3 py-2 sm:px-4 rounded-md text-sm whitespace-nowrap ${activeTab === 'manage' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-600'}`}>Tests</button>
-                    <button onClick={() => setActiveTab('series')} className={`px-3 py-2 sm:px-4 rounded-md text-sm whitespace-nowrap ${activeTab === 'series' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-600'}`}>Series</button>
-                    <button onClick={() => setActiveTab('users')} className={`px-3 py-2 sm:px-4 rounded-md text-sm whitespace-nowrap ${activeTab === 'users' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-600'}`}>Students</button>
-                    {user?.role !== 'institute_admin' && (
-                        <>
-                            <button onClick={() => setActiveTab('revenue')} className={`px-3 py-2 sm:px-4 rounded-md text-sm whitespace-nowrap ${activeTab === 'revenue' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-600'}`}>Revenue</button>
-                            <button onClick={() => setActiveTab('content')} className={`px-3 py-2 sm:px-4 rounded-md text-sm whitespace-nowrap ${activeTab === 'content' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-600'}`}>Content & Config</button>
-                            <button onClick={() => setActiveTab('notes')} className={`px-3 py-2 sm:px-4 rounded-md text-sm whitespace-nowrap ${activeTab === 'notes' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-600'}`}>📚 Notes</button>
-                            {user?.adminLevel !== 3 && <button onClick={() => setActiveTab('institutes')} className={`px-3 py-2 sm:px-4 rounded-md text-sm whitespace-nowrap ${activeTab === 'institutes' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-600'}`}>Institutes</button>}
-                            <button onClick={() => setActiveTab('create')} className={`px-3 py-2 sm:px-4 rounded-md text-sm whitespace-nowrap ${activeTab === 'create' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-600'}`}>+ Create</button>
-                        </>
-                    )}
-                    <button onClick={() => window.location.href = '/'} className="px-3 py-2 sm:px-4 rounded-md bg-red-100 text-red-700 hover:bg-red-200 font-bold flex items-center gap-1 text-sm whitespace-nowrap"><LogOut size={16} /> Logout</button>
-                </div>
+            <div className="flex flex-wrap gap-2 bg-slate-100 p-1.5 rounded-2xl max-w-fit border border-slate-200/40 mb-8">
+                <button onClick={() => setActiveTab('profile')} className={`px-5 py-3 rounded-xl text-sm font-bold transition-all ${activeTab === 'profile' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-800'}`}>Profile</button>
+                <button onClick={() => setActiveTab('manage')} className={`px-5 py-3 rounded-xl text-sm font-bold transition-all ${activeTab === 'manage' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-800'}`}>Tests</button>
+                <button onClick={() => setActiveTab('series')} className={`px-5 py-3 rounded-xl text-sm font-bold transition-all ${activeTab === 'series' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-800'}`}>Series</button>
+                <button onClick={() => setActiveTab('users')} className={`px-5 py-3 rounded-xl text-sm font-bold transition-all ${activeTab === 'users' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-800'}`}>Students</button>
+                {user?.role !== 'institute_admin' && (
+                    <>
+                        <button onClick={() => setActiveTab('revenue')} className={`px-5 py-3 rounded-xl text-sm font-bold transition-all ${activeTab === 'revenue' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-800'}`}>Revenue</button>
+                        <button onClick={() => setActiveTab('content')} className={`px-5 py-3 rounded-xl text-sm font-bold transition-all ${activeTab === 'content' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-800'}`}>Content & Config</button>
+                        <button onClick={() => setActiveTab('notes')} className={`px-5 py-3 rounded-xl text-sm font-bold transition-all ${activeTab === 'notes' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-800'}`}>📚 Notes</button>
+                        {user?.adminLevel !== 3 && <button onClick={() => setActiveTab('institutes')} className={`px-5 py-3 rounded-xl text-sm font-bold transition-all ${activeTab === 'institutes' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-800'}`}>Institutes</button>}
+                        <button onClick={() => setActiveTab('create')} className={`px-5 py-3 rounded-xl text-sm font-bold transition-all ${activeTab === 'create' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-800'}`}>+ Create</button>
+                    </>
+                )}
             </div>
 
             {/* Profile Tab */}
             {activeTab === 'profile' && (
-                <div className="space-y-8 max-w-5xl mx-auto">
+                <div className="space-y-8 max-w-5xl mx-auto animate-in fade-in duration-500">
                     {/* Logged in Admin Profile */}
-                    <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100 flex flex-col md:flex-row items-center gap-8 relative overflow-hidden">
+                    <div className="bg-white rounded-3xl border border-slate-200/60 shadow-sm p-8 flex flex-col md:flex-row items-center gap-8 relative overflow-hidden group hover:shadow-md transition-all">
                         <div className="absolute -top-24 -right-24 w-64 h-64 bg-indigo-50 rounded-full blur-3xl opacity-60 pointer-events-none"></div>
-                        <div className="w-32 h-32 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 shadow-inner z-10 shrink-0 border-4 border-white">
-                            <User size={64} />
+                        <div className="w-32 h-32 bg-white border border-slate-200/60 rounded-3xl flex items-center justify-center shadow-inner z-10 shrink-0 p-4">
+                            <img src="/logo.png" alt="Apex Logo" className="h-full w-auto object-contain" />
                         </div>
                         <div className="text-center md:text-left z-10">
-                            <h3 className="text-3xl font-black text-gray-900 tracking-tight">{user?.name || 'Administrator'}</h3>
-                            <p className="text-gray-500 font-medium mb-4">{user?.email}</p>
+                            <h3 className="text-3xl font-black text-slate-900 tracking-tight">{user?.name || 'Administrator'}</h3>
+                            <p className="text-slate-500 font-bold text-sm mb-4">{user?.email}</p>
                             <div className="flex flex-wrap justify-center md:justify-start gap-2">
-                                <span className="inline-block px-4 py-1.5 bg-emerald-100 text-emerald-800 rounded-full text-sm font-bold uppercase tracking-wider">{user?.role}</span>
+                                <span className="inline-block px-4 py-1.5 bg-emerald-50 border border-emerald-250 text-emerald-800 rounded-full text-xs font-extrabold uppercase tracking-wider">{user?.role}</span>
                                 {user?.role === 'admin' && (
-                                    <span className="inline-block px-4 py-1.5 bg-purple-100 text-purple-800 rounded-full text-sm font-bold uppercase tracking-wider">
+                                    <span className="inline-block px-4 py-1.5 bg-purple-50 border border-purple-255 text-purple-800 rounded-full text-xs font-extrabold uppercase tracking-wider">
                                         Level {user?.adminLevel || 1} Admin
                                     </span>
                                 )}
@@ -2880,22 +2913,22 @@ export default function AdminDashboard() {
                     </div>
 
                     {/* Admin Team Leaderboard */}
-                    <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100 relative">
-                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 pb-6 border-b border-gray-100 gap-4">
+                    <div className="bg-white rounded-3xl border border-slate-200/60 shadow-sm p-8 relative hover:shadow-md transition-all">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 pb-6 border-b border-slate-100 gap-4">
                             <div>
-                                <h3 className="text-2xl font-black text-gray-900 flex items-center gap-3">
-                                    <Award className="text-indigo-600" size={28} /> Admin Team Leaderboard
+                                <h3 className="text-2xl font-black text-slate-900 flex items-center gap-3">
+                                    <img src="/logo.png" alt="Apex Logo" className="h-7 w-auto object-contain" /> Admin Team Leaderboard
                                 </h3>
-                                <p className="text-sm text-gray-500 mt-1 font-medium">Global ranking based on test creation and review activity</p>
+                                <p className="text-sm text-slate-500 mt-1 font-semibold">Global ranking based on test creation and review activity</p>
                             </div>
-                            <div className="flex gap-4 bg-gray-50 p-3 rounded-xl border border-gray-100 hidden sm:flex">
-                                <div className="text-center px-4 border-r border-gray-200">
+                            <div className="flex gap-4 bg-slate-50 p-3 rounded-xl border border-slate-150 hidden sm:flex">
+                                <div className="text-center px-4 border-r border-slate-200">
                                     <div className="text-[10px] font-black uppercase text-emerald-600 tracking-wider">Upload</div>
-                                    <div className="text-xs font-bold text-gray-600">+10 pts</div>
+                                    <div className="text-xs font-bold text-slate-600">+10 pts</div>
                                 </div>
                                 <div className="text-center px-4">
                                     <div className="text-[10px] font-black uppercase text-blue-600 tracking-wider">Review</div>
-                                    <div className="text-xs font-bold text-gray-600">+5 pts</div>
+                                    <div className="text-xs font-bold text-slate-600">+5 pts</div>
                                 </div>
                             </div>
                         </div>
@@ -2903,10 +2936,10 @@ export default function AdminDashboard() {
                         {/* Super Admins Section */}
                         {teamStats.superAdmins && teamStats.superAdmins.length > 0 && (
                             <div className="mb-10 text-center sm:text-left">
-                                <h4 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">👑 Super Admins (Level 1)</h4>
+                                <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">👑 Super Admins (Level 1)</h4>
                                 <div className="flex flex-wrap gap-4 justify-center sm:justify-start">
                                     {teamStats.superAdmins.map(admin => (
-                                        <div key={admin.id} className="flex items-center gap-3 bg-gray-50 border border-gray-200 px-4 py-2 rounded-full shadow-sm hover:border-indigo-300 transition-colors">
+                                        <div key={admin.id} className="flex items-center gap-3 bg-slate-50 border border-slate-200 px-4 py-2.5 rounded-full shadow-sm hover:border-indigo-300 transition-all">
                                             <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold shrink-0 overflow-hidden">
                                                 {admin.photoURL ? (
                                                     <img src={admin.photoURL} alt={admin.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
@@ -2915,8 +2948,8 @@ export default function AdminDashboard() {
                                                 )}
                                             </div>
                                             <div className="text-left">
-                                                <div className="text-sm font-bold text-gray-900 leading-tight">{admin.name}</div>
-                                                <div className="text-[10px] uppercase font-bold text-indigo-500 tracking-wider">Super Admin</div>
+                                                <div className="text-sm font-bold text-slate-900 leading-tight">{admin.name}</div>
+                                                <div className="text-[10px] uppercase font-black text-indigo-500 tracking-wider">Super Admin</div>
                                             </div>
                                         </div>
                                     ))}
@@ -2926,19 +2959,19 @@ export default function AdminDashboard() {
 
                         <div className="grid gap-4">
                             {(!teamStats.leaderboard) ? (
-                                <div className="text-center p-8 text-gray-500 font-medium">Loading leaderboard...</div>
+                                <div className="text-center p-8 text-slate-500 font-bold">Loading leaderboard...</div>
                             ) : teamStats.leaderboard.length === 0 ? (
-                                <div className="text-center p-8 text-gray-500 font-medium">No activity to rank yet...</div>
+                                <div className="text-center p-8 text-slate-500 font-bold">No activity to rank yet...</div>
                             ) : (
                                 teamStats.leaderboard.map((stat) => (
-                                    <div key={stat.id} className="group flex flex-col md:flex-row items-center bg-gray-50 hover:bg-white transition-all p-5 rounded-xl border border-gray-200 hover:border-indigo-300 shadow-sm hover:shadow-md gap-6 relative overflow-hidden">
+                                    <div key={stat.id} className="group flex flex-col md:flex-row items-center bg-slate-50 hover:bg-white transition-all p-5 rounded-2xl border border-slate-150 hover:border-indigo-300 shadow-sm hover:shadow-md gap-6 relative overflow-hidden">
                                         {/* Rank Indicator Bar */}
                                         <div className="absolute top-0 left-0 w-1.5 h-full rounded-l-xl transition-colors"
                                             style={{ backgroundColor: stat.rank === 1 ? '#FBBF24' : stat.rank === 2 ? '#9CA3AF' : stat.rank === 3 ? '#B45309' : '#818CF8' }}>
                                         </div>
 
                                         {/* Rank Circle */}
-                                        <div className="flex items-center justify-center w-14 h-14 bg-white rounded-full shadow-md text-2xl font-black shrink-0 border-2"
+                                        <div className="flex items-center justify-center w-14 h-14 bg-white rounded-2xl shadow-sm text-2xl font-black shrink-0 border-2"
                                             style={{
                                                 color: stat.rank === 1 ? '#F59E0B' : stat.rank === 2 ? '#6B7280' : stat.rank === 3 ? '#92400E' : '#6366F1',
                                                 borderColor: stat.rank === 1 ? '#FDE68A' : stat.rank === 2 ? '#E5E7EB' : stat.rank === 3 ? '#FEF3C7' : '#E0E7FF'
@@ -2958,34 +2991,34 @@ export default function AdminDashboard() {
                                         </div>
 
                                         <div className="flex-1 text-center md:text-left mt-2 md:mt-0 z-10">
-                                            <h4 className="text-lg font-bold text-gray-900 justify-center md:justify-start gap-2 flex items-center">
+                                            <h4 className="text-lg font-bold text-slate-800 justify-center md:justify-start gap-2 flex items-center">
                                                 {stat.name}
-                                                <span className="text-[10px] px-2 py-0.5 bg-gray-200 text-gray-700 rounded text-center font-bold tracking-widest uppercase">
+                                                <span className="text-[10px] px-2 py-0.5 bg-slate-200 text-slate-700 rounded text-center font-bold tracking-widest uppercase">
                                                     L{stat.level}
                                                 </span>
                                             </h4>
-                                            <p className="text-xs text-gray-500 font-medium mt-0.5">{stat.email}</p>
+                                            <p className="text-xs text-slate-400 font-semibold mt-0.5">{stat.email}</p>
                                         </div>
 
                                         {/* Stats Row */}
-                                        <div className="flex gap-4 md:gap-8 items-center flex-wrap justify-center bg-white md:bg-transparent p-3 md:p-0 rounded-xl md:rounded-none border md:border-none border-gray-100 w-full md:w-auto">
+                                        <div className="flex gap-4 md:gap-8 items-center flex-wrap justify-center bg-white md:bg-transparent p-3 md:p-0 rounded-xl md:rounded-none border md:border-none border-gray-150 w-full md:w-auto">
                                             <div className="text-center">
                                                 <div className="text-2xl font-black text-emerald-600">{stat.uploads}</div>
-                                                <div className="text-[10px] uppercase font-bold text-gray-400 tracking-wider">Uploads</div>
+                                                <div className="text-[10px] uppercase font-black text-slate-400 tracking-wider">Uploads</div>
                                             </div>
-                                            <div className="text-center border-l border-r border-gray-100 md:border-gray-200 px-4 md:px-8">
+                                            <div className="text-center border-l border-r border-slate-200 px-4 md:px-8">
                                                 <div className="text-2xl font-black text-blue-600">{stat.reviews}</div>
-                                                <div className="text-[10px] uppercase font-bold text-gray-400 tracking-wider">Reviews</div>
+                                                <div className="text-[10px] uppercase font-black text-slate-400 tracking-wider">Reviews</div>
                                             </div>
                                             <div className="text-center bg-indigo-50/50 md:bg-indigo-50 px-4 md:px-6 py-2 rounded-xl md:border border-indigo-100">
                                                 <div className="text-2xl font-black text-indigo-700">{stat.score}</div>
-                                                <div className="text-[10px] uppercase font-bold text-indigo-500 tracking-wider">Points</div>
+                                                <div className="text-[10px] uppercase font-black text-indigo-505 tracking-wider">Points</div>
                                             </div>
                                         </div>
 
                                         {/* Badge */}
                                         <div className="shrink-0 text-center md:text-right w-full md:w-auto mt-2 md:mt-0">
-                                            <span className="inline-block px-4 py-2 bg-gradient-to-r from-amber-50 to-orange-50 text-amber-900 text-xs font-black uppercase tracking-widest rounded-full shadow-sm border border-amber-200/50 group-hover:scale-105 transition-transform">
+                                            <span className="inline-block px-4 py-2 bg-gradient-to-r from-amber-50 to-orange-50 text-amber-900 text-xs font-black uppercase tracking-widest rounded-xl shadow-xs border border-amber-200/50 group-hover:scale-105 transition-transform">
                                                 {stat.badge}
                                             </span>
                                         </div>
@@ -3017,244 +3050,331 @@ export default function AdminDashboard() {
                         const activeTests = sortedTests.filter(t => !isExpired(t.expiryDate) && t.isVisible !== false && t.status !== 'draft');
                         const hiddenTests = sortedTests.filter(t => !isExpired(t.expiryDate) && t.isVisible === false && t.status !== 'draft');
                         const draftTests = sortedTests.filter(t => t.status === 'draft');
-                        const expiredTests = sortedTests.filter(t => isExpired(t.expiryDate) && t.status !== 'draft');
-
-                        const renderTestTable = (testList, title, key, isDraft = false) => (
-                            <div key={key} className="bg-white rounded-lg shadow overflow-hidden mb-6">
-                                <div className="p-6 border-b border-gray-200 bg-gray-50"><h3 className="text-xl font-bold text-gray-800">{title} ({testList.length})</h3></div>
+                        const expiredTests = sortedTests.filter(t => isExpired(t.expiryDate));
+                                  const renderTestTable = (testList, title, key, isDraft = false) => (
+                            <div key={key} className="bg-white rounded-3xl border border-slate-200/60 shadow-sm overflow-hidden mb-8 hover:shadow-md transition-all duration-300">
+                                <div className="p-6 border-b border-slate-100 bg-slate-50/50">
+                                    <h3 className="text-lg font-black text-slate-800 uppercase tracking-wider">{title} ({testList.length})</h3>
+                                </div>
                                 {testList.length === 0 ? (
-                                    <div className="p-6 text-center text-gray-500">No tests found in this category.</div>
+                                    <div className="p-8 text-center text-slate-400 font-semibold italic">No tests found in this category.</div>
                                 ) : (
                                     <div className="overflow-x-auto">
-                                        <table className="min-w-full divide-y divide-gray-200">
-                                            <thead className="bg-gray-100">
+                                        <table className="min-w-full divide-y divide-slate-100">
+                                            <thead className="bg-slate-50/70">
                                                 <tr>
-                                                    <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase">Title</th>
-                                                    <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase">Series</th>
-                                                    <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase">Category</th>
-                                                    <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase">Expiry</th>
-                                                    <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase">Actions</th>
+                                                    <th className="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Title</th>
+                                                    <th className="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Series</th>
+                                                    <th className="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Category</th>
+                                                    <th className="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Expiry</th>
+                                                    <th className="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Actions</th>
                                                 </tr>
                                             </thead>
-                                            <tbody className="bg-white divide-y divide-gray-200">
+                                            <tbody className="bg-white divide-y divide-slate-100">
                                                 {testList.map((test) => (
-                                                    <tr key={test._id} className="hover:bg-gray-50">
-                                                        <td className="px-6 py-4 font-medium text-gray-900">
-                                                            <div>{test.title}</div>
+                                                    <tr key={test._id} className="hover:bg-slate-50/50 transition-colors">
+                                                        <td className="px-6 py-4.5">
+                                                            <div className="font-bold text-slate-850 text-sm leading-snug">{test.title}</div>
                                                             {user?.adminLevel === 1 && (
-                                                                <div className="text-[10px] text-gray-400 mt-1 flex flex-col gap-1 font-normal">
+                                                                <div className="text-[10px] text-slate-400 mt-1.5 flex flex-col gap-1 font-semibold uppercase tracking-wide">
                                                                     {test.createdByName && (
-                                                                        <div className="flex items-center gap-1">
-                                                                            <User size={10} /> Uploaded by: <span className="font-semibold text-gray-600">{test.createdByName}</span>
+                                                                        <div className="flex items-center gap-1.5">
+                                                                            <User size={10} className="text-slate-350" /> Uploaded by: <span className="font-extrabold text-slate-500">{test.createdByName}</span>
                                                                         </div>
                                                                     )}
                                                                     {test.updatedByName && (
-                                                                        <div className="flex items-center gap-1 text-indigo-400">
-                                                                            <User size={10} /> Edited by: <span className="font-semibold text-indigo-500">{test.updatedByName}</span>
+                                                                        <div className="flex items-center gap-1.5 text-indigo-400/80">
+                                                                            <User size={10} className="text-indigo-400" /> Edited by: <span className="font-extrabold text-indigo-650">{test.updatedByName}</span>
                                                                         </div>
                                                                     )}
                                                                 </div>
                                                             )}
                                                         </td>
-                                                        <td className="px-6 py-4">
+                                                        <td className="px-6 py-4.5">
                                                             {(() => {
                                                                 const matchedSeries = seriesList.filter(s => s.testIds?.includes(test._id));
                                                                 if (matchedSeries.length === 0) {
-                                                                    return <span className="text-xs text-gray-400 italic font-medium">No Series</span>;
+                                                                    return <span className="text-xs text-slate-400 italic font-semibold">No Series</span>;
                                                                 }
                                                                 if (matchedSeries.length === 1) {
                                                                     return (
-                                                                        <span className="px-2 py-1 bg-indigo-50 text-indigo-700 rounded text-[11px] font-bold border border-indigo-100">
+                                                                        <span className="px-2.5 py-1 bg-indigo-50 text-indigo-700 rounded-lg text-xs font-bold border border-indigo-100/60">
                                                                             {matchedSeries[0].title}
                                                                         </span>
                                                                     );
                                                                 }
                                                                 return (
-                                                                    <div className="flex flex-col gap-1">
-                                                                        <span className="text-[11px] font-black text-indigo-600 uppercase tracking-tighter bg-indigo-50 w-fit px-1.5 rounded">{matchedSeries.length} Series</span>
-                                                                        <div className="text-[9px] text-gray-400 leading-none">
+                                                                    <div className="flex flex-col gap-1.5">
+                                                                        <span className="text-[10px] font-black text-indigo-650 uppercase tracking-wider bg-indigo-50/80 border border-indigo-100/50 w-fit px-2 py-0.5 rounded-full">{matchedSeries.length} Series</span>
+                                                                        <div className="text-[9px] font-semibold text-slate-400 leading-tight">
                                                                             {matchedSeries.map(s => s.title).join(', ')}
                                                                         </div>
                                                                     </div>
                                                                 );
                                                             })()}
                                                         </td>
-                                                        <td className="px-6 py-4"><span className="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">{test.category}</span></td>
-                                                        <td className="px-6 py-4 text-sm text-gray-500">
-                                                            {test.expiryDate ? new Date(test.expiryDate).toLocaleDateString() : <span className="text-green-600">No Expiry</span>}
+                                                        <td className="px-6 py-4.5">
+                                                            <span className="px-2.5 py-1 text-xs font-bold rounded-lg bg-blue-50 text-blue-700 border border-blue-100/60">
+                                                                {test.category}
+                                                            </span>
                                                         </td>
-                                                        <td className="px-6 py-4 space-x-2">
-                                                            <button
-                                                                onClick={async () => {
-                                                                    try {
-                                                                        const token = await user?.getIdToken();
-                                                                        const newStatus = !test.isVisible;
-                                                                        const res = await fetch(`${API_BASE_URL}/api/tests/${test._id}/visibility`, {
-                                                                            method: 'PUT',
-                                                                            headers: {
-                                                                                'Content-Type': 'application/json',
-                                                                                'Authorization': `Bearer ${token}`
-                                                                            },
-                                                                            body: JSON.stringify({ isVisible: newStatus })
-                                                                        });
-                                                                        if (res.ok) {
-                                                                            setTests(tests.map(t => t._id === test._id ? { ...t, isVisible: newStatus } : t));
-                                                                        } else {
-                                                                            const errData = await res.json().catch(() => ({}));
-                                                                            console.error("Visibility Error:", errData);
-                                                                        }
-                                                                    } catch (e) {
-                                                                        console.error("Visibility Toggle Error", e);
-                                                                        alert("Error: " + (e.message || "Could not toggle visibility"));
-                                                                    }
-                                                                }}
-                                                                className={`text-sm font-bold ${test.isVisible !== false ? 'text-green-600' : 'text-gray-400'}`}
-                                                                title={test.isVisible !== false ? "Visible to Students" : "Hidden from Students"}
-                                                            >
-                                                                {test.isVisible !== false ? <Eye size={18} /> : <EyeOff size={18} />}
-                                                            </button>
-                                                            <button
-                                                                onClick={async () => {
-                                                                    setLoading(true);
-                                                                    try {
-                                                                        const token = await user?.getIdToken();
-                                                                        const res = await fetch(`${API_BASE_URL}/api/tests/${test._id}`, {
-                                                                            headers: { 'Authorization': `Bearer ${token}` }
-                                                                        });
-                                                                        const data = await res.json();
-                                                                        setPreviewingTest(data);
-                                                                    } catch (e) {
-                                                                        console.error(e);
-                                                                        alert("Failed to load test preview");
-                                                                    } finally {
-                                                                        setLoading(false);
-                                                                    }
-                                                                }}
-                                                                className="text-indigo-600 hover:text-indigo-900 text-sm font-bold"
-                                                                title="Preview Full Test"
-                                                            >
-                                                                <Search size={18} />
-                                                            </button>
-                                                            <button
-                                                                onClick={async () => {
-                                                                    setLoading(true);
-                                                                    try {
-                                                                        const token = await user?.getIdToken();
-                                                                        const res = await fetch(`${API_BASE_URL}/api/tests/${test._id}`, { headers: { 'Authorization': `Bearer ${token}` } });
-                                                                        if (!res.ok) throw new Error("Could not fetch full test details");
-                                                                        const fullTest = await res.json();
-                                                                        setEditingTest(fullTest);
-                                                                    } catch (e) {
-                                                                        alert("Failed to load test for editing");
-                                                                    } finally {
-                                                                        setLoading(false);
-                                                                    }
-                                                                }}
-                                                                className="text-blue-600 hover:text-blue-900 text-sm font-bold"
-                                                                title="Edit Test Details"
-                                                            >
-                                                                <Edit2 size={18} />
-                                                            </button>
-                                                            <button onClick={() => setShowAnalytics(test._id)} className="text-indigo-600 hover:text-indigo-900 text-sm font-bold">Stats</button>
-                                                            <button
-                                                                onClick={async () => {
-                                                                    setLoading(true);
-                                                                    try {
-                                                                        const token = await user?.getIdToken();
-                                                                        const res = await fetch(`${API_BASE_URL}/api/tests/${test._id}`, {
-                                                                            headers: { 'Authorization': `Bearer ${token}` }
-                                                                        });
-                                                                        const fullTest = await res.json();
-                                                                        setSplittingTest(fullTest);
-                                                                    } catch (e) {
-                                                                        alert("Failed to load test for splitting");
-                                                                    } finally {
-                                                                        setLoading(false);
-                                                                    }
-                                                                }}
-                                                                className="text-orange-600 hover:text-orange-900 text-sm font-bold"
-                                                                title="Create Subject-wise Tests"
-                                                            >
-                                                                Split
-                                                            </button>
-                                                            <button
-                                                                onClick={async () => {
-                                                                    setLoading(true);
-                                                                    try {
-                                                                        const token = await user?.getIdToken();
-                                                                        const res = await fetch(`${API_BASE_URL}/api/tests/${test._id}`, {
-                                                                            headers: { 'Authorization': `Bearer ${token}` }
-                                                                        });
-                                                                        if (!res.ok) throw new Error("Could not fetch test details");
-                                                                        const fullTest = await res.json();
-
-                                                                        // LOAD INTO CREATE TAB
-                                                                        setQuestions(fullTest.questions || []);
-                                                                        setTestDetails({
-                                                                            title: fullTest.title || '',
-                                                                            duration: fullTest.duration_minutes || fullTest.duration || 180,
-                                                                            category: fullTest.category || 'JEE Main',
-                                                                            subject: fullTest.subject || 'Full Mock',
-                                                                            difficulty: fullTest.difficulty || 'medium',
-                                                                            instructions: fullTest.instructions || '',
-                                                                            isLive: !!fullTest.startTime,
-                                                                            startTime: fullTest.startTime || '',
-                                                                            endTime: fullTest.endTime || '',
-                                                                            isVisible: fullTest.isVisible !== false,
-                                                                            chapters: (fullTest.chapters || []).join(', ')
-                                                                        });
-                                                                        setIsUpdatingExisting(true);
-                                                                        setEditingId(test._id);
-                                                                        setActiveTab('create');
-                                                                        alert("Test loaded into 'Create' tab. You can now fix questions and update.");
-                                                                    } catch (e) {
-                                                                        alert("Failed to load test: " + e.message);
-                                                                    } finally {
-                                                                        setLoading(false);
-                                                                    }
-                                                                }}
-                                                                className="text-emerald-600 hover:text-emerald-900 text-sm font-bold border border-emerald-200 px-2 py-0.5 rounded bg-emerald-50"
-                                                                title="Load to mark answers or fix questions"
-                                                            >
-                                                                Mark Ans
-                                                            </button>
-                                                            {/* Approve & Publish button — only in Draft section for Level 1/2 admins */}
-                                                            {isDraft && (user?.adminLevel === 1 || user?.adminLevel === 2) && (
+                                                        <td className="px-6 py-4.5 text-xs font-semibold text-slate-500">
+                                                            {test.expiryDate ? new Date(test.expiryDate).toLocaleDateString() : <span className="text-green-650 font-bold">No Expiry</span>}
+                                                        </td>
+                                                        <td className="px-6 py-4.5">
+                                                            <div className="flex flex-wrap gap-2 items-center">
                                                                 <button
                                                                     onClick={async () => {
-                                                                        if (!window.confirm(`Publish "${test.title}" and make it visible to students?`)) return;
+                                                                        setTestProcessing(test._id, 'visibility', true);
                                                                         try {
                                                                             const token = await user?.getIdToken();
-                                                                            const res = await fetch(`${API_BASE_URL}/api/tests/${test._id}`, {
+                                                                            const newStatus = !test.isVisible;
+                                                                            const res = await fetch(`${API_BASE_URL}/api/tests/${test._id}/visibility`, {
                                                                                 method: 'PUT',
                                                                                 headers: {
                                                                                     'Content-Type': 'application/json',
                                                                                     'Authorization': `Bearer ${token}`
                                                                                 },
-                                                                                body: JSON.stringify({
-                                                                                    status: 'published',
-                                                                                    isVisible: true,
-                                                                                    updatedByName: user?.name || user?.displayName || (user?.email ? user.email.split('@')[0] : 'Admin')
-                                                                                })
+                                                                                body: JSON.stringify({ isVisible: newStatus })
                                                                             });
                                                                             if (res.ok) {
-                                                                                setTests(prev => prev.map(t => t._id === test._id ? { ...t, status: 'published', isVisible: true } : t));
-                                                                                alert(`✅ "${test.title}" is now Published and visible to students!`);
+                                                                                setTests(tests.map(t => t._id === test._id ? { ...t, isVisible: newStatus } : t));
                                                                             } else {
                                                                                 const errData = await res.json().catch(() => ({}));
-                                                                                alert('Failed to publish: ' + (errData.message || 'Unknown error'));
+                                                                                console.error("Visibility Error:", errData);
                                                                             }
                                                                         } catch (e) {
-                                                                            alert('Error publishing test: ' + e.message);
+                                                                            console.error("Visibility Toggle Error", e);
+                                                                            alert("Error: " + (e.message || "Could not toggle visibility"));
+                                                                        } finally {
+                                                                            setTestProcessing(test._id, 'visibility', false);
                                                                         }
                                                                     }}
-                                                                    className="flex items-center gap-1 text-xs font-bold text-white bg-green-600 hover:bg-green-700 px-3 py-1.5 rounded-lg shadow transition-all"
-                                                                    title="Approve and Publish this Draft"
+                                                                    className={`p-2 rounded-xl transition-all duration-200 inline-flex items-center justify-center shadow-xs ${test.isVisible !== false ? 'text-green-600 bg-green-50 hover:bg-green-100 border border-green-150/60' : 'text-slate-400 bg-slate-50 hover:bg-slate-100 border border-slate-200/60'}`}
+                                                                    title={test.isVisible !== false ? "Visible to Students" : "Hidden from Students"}
+                                                                    disabled={processingTests[test._id]?.visibility}
                                                                 >
-                                                                    ✓ Approve & Publish
+                                                                    {processingTests[test._id]?.visibility ? (
+                                                                        <Loader2 className="animate-spin" size={16} />
+                                                                    ) : (
+                                                                        test.isVisible !== false ? <Eye size={16} /> : <EyeOff size={16} />
+                                                                    )}
                                                                 </button>
-                                                            )}
-                                                            <button onClick={() => handleDeleteTest(test._id)} className="text-red-500 hover:text-red-700 text-sm font-bold">Delete</button>
+                                                                <button
+                                                                    onClick={async () => {
+                                                                        setTestProcessing(test._id, 'preview', true);
+                                                                        try {
+                                                                            const token = await user?.getIdToken();
+                                                                            const res = await fetch(`${API_BASE_URL}/api/tests/${test._id}`, {
+                                                                                headers: { 'Authorization': `Bearer ${token}` }
+                                                                            });
+                                                                            const data = await res.json();
+                                                                            setPreviewingTest(data);
+                                                                        } catch (e) {
+                                                                            console.error(e);
+                                                                            alert("Failed to load test preview");
+                                                                        } finally {
+                                                                            setTestProcessing(test._id, 'preview', false);
+                                                                        }
+                                                                    }}
+                                                                    className="p-2 text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 border border-indigo-100/60 rounded-xl transition-all duration-200 inline-flex items-center justify-center shadow-xs"
+                                                                    title="Preview Full Test"
+                                                                    disabled={processingTests[test._id]?.preview}
+                                                                >
+                                                                    {processingTests[test._id]?.preview ? (
+                                                                        <Loader2 className="animate-spin" size={16} />
+                                                                    ) : (
+                                                                        <Search size={16} />
+                                                                    )}
+                                                                </button>
+                                                                <button
+                                                                    onClick={async () => {
+                                                                        setTestProcessing(test._id, 'edit', true);
+                                                                        try {
+                                                                            const token = await user?.getIdToken();
+                                                                            const res = await fetch(`${API_BASE_URL}/api/tests/${test._id}`, { headers: { 'Authorization': `Bearer ${token}` } });
+                                                                            if (!res.ok) throw new Error("Could not fetch full test details");
+                                                                            const fullTest = await res.json();
+                                                                            setEditingTest(fullTest);
+                                                                        } catch (e) {
+                                                                            alert("Failed to load test for editing");
+                                                                        } finally {
+                                                                            setTestProcessing(test._id, 'edit', false);
+                                                                        }
+                                                                    }}
+                                                                    className="p-2 text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 border border-blue-100/60 rounded-xl transition-all duration-200 inline-flex items-center justify-center shadow-xs"
+                                                                    title="Edit Test Details"
+                                                                    disabled={processingTests[test._id]?.edit}
+                                                                >
+                                                                    {processingTests[test._id]?.edit ? (
+                                                                        <Loader2 className="animate-spin" size={16} />
+                                                                    ) : (
+                                                                        <Edit2 size={16} />
+                                                                    )}
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => {
+                                                                        setTestProcessing(test._id, 'stats', true);
+                                                                        setShowAnalytics(test._id);
+                                                                        setTimeout(() => {
+                                                                            setTestProcessing(test._id, 'stats', false);
+                                                                        }, 600);
+                                                                    }}
+                                                                    className="px-3 py-2 text-xs font-bold text-violet-700 bg-violet-50 hover:bg-violet-100 border border-violet-100/60 rounded-xl transition-all duration-200 inline-flex items-center justify-center shadow-xs"
+                                                                    disabled={processingTests[test._id]?.stats}
+                                                                >
+                                                                    {processingTests[test._id]?.stats ? (
+                                                                        <span className="flex items-center gap-1.5">
+                                                                            <Loader2 className="animate-spin" size={12} />
+                                                                            Loading...
+                                                                        </span>
+                                                                    ) : (
+                                                                        "Stats"
+                                                                    )}
+                                                                </button>
+                                                                <button
+                                                                    onClick={async () => {
+                                                                        setTestProcessing(test._id, 'split', true);
+                                                                        try {
+                                                                            const token = await user?.getIdToken();
+                                                                            const res = await fetch(`${API_BASE_URL}/api/tests/${test._id}`, {
+                                                                                headers: { 'Authorization': `Bearer ${token}` }
+                                                                            });
+                                                                            const fullTest = await res.json();
+                                                                            setSplittingTest(fullTest);
+                                                                        } catch (e) {
+                                                                            alert("Failed to load test for splitting");
+                                                                        } finally {
+                                                                            setTestProcessing(test._id, 'split', false);
+                                                                        }
+                                                                    }}
+                                                                    className="px-3 py-2 text-xs font-bold text-orange-700 bg-orange-50 hover:bg-orange-100 border border-orange-100/60 rounded-xl transition-all duration-200 inline-flex items-center justify-center shadow-xs"
+                                                                    title="Create Subject-wise Tests"
+                                                                    disabled={processingTests[test._id]?.split}
+                                                                >
+                                                                    {processingTests[test._id]?.split ? (
+                                                                        <span className="flex items-center gap-1.5">
+                                                                            <Loader2 className="animate-spin" size={12} />
+                                                                            Loading...
+                                                                        </span>
+                                                                    ) : (
+                                                                        "Split"
+                                                                    )}
+                                                                </button>
+                                                                <button
+                                                                    onClick={async () => {
+                                                                        setTestProcessing(test._id, 'mark', true);
+                                                                        try {
+                                                                            const token = await user?.getIdToken();
+                                                                            const res = await fetch(`${API_BASE_URL}/api/tests/${test._id}`, {
+                                                                                headers: { 'Authorization': `Bearer ${token}` }
+                                                                            });
+                                                                            if (!res.ok) throw new Error("Could not fetch test details");
+                                                                            const fullTest = await res.json();
+                                                                            // LOAD INTO CREATE TAB
+                                                                            setQuestions(fullTest.questions || []);
+                                                                            setTestDetails({
+                                                                                title: fullTest.title || '',
+                                                                                duration: fullTest.duration_minutes || fullTest.duration || 180,
+                                                                                category: fullTest.category || 'JEE Main',
+                                                                                subject: fullTest.subject || 'Full Mock',
+                                                                                difficulty: fullTest.difficulty || 'medium',
+                                                                                instructions: fullTest.instructions || '',
+                                                                                isLive: !!fullTest.startTime,
+                                                                                startTime: fullTest.startTime || '',
+                                                                                endTime: fullTest.endTime || '',
+                                                                                isVisible: fullTest.isVisible !== false,
+                                                                                chapters: (fullTest.chapters || []).join(', ')
+                                                                            });
+                                                                            setIsUpdatingExisting(true);
+                                                                            setEditingId(test._id);
+                                                                            setActiveTab('create');
+                                                                            alert("Test loaded into 'Create' tab. You can now fix questions and update.");
+                                                                        } catch (e) {
+                                                                            alert("Failed to load test: " + e.message);
+                                                                        } finally {
+                                                                            setTestProcessing(test._id, 'mark', false);
+                                                                        }
+                                                                    }}
+                                                                    className="px-3 py-2 text-xs font-black text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-250/60 rounded-xl transition-all duration-200 inline-flex items-center justify-center shadow-xs"
+                                                                    title="Load to mark answers or fix questions"
+                                                                    disabled={processingTests[test._id]?.mark}
+                                                                >
+                                                                    {processingTests[test._id]?.mark ? (
+                                                                        <span className="flex items-center gap-1.5">
+                                                                            <Loader2 className="animate-spin" size={12} />
+                                                                            Loading...
+                                                                        </span>
+                                                                    ) : (
+                                                                        "Mark Ans"
+                                                                    )}
+                                                                </button>
+                                                                {/* Approve & Publish button — only in Draft section for Level 1/2 admins */}
+                                                                {isDraft && (user?.adminLevel === 1 || user?.adminLevel === 2) && (
+                                                                    <button
+                                                                        onClick={async () => {
+                                                                            if (!window.confirm(`Publish "${test.title}" and make it visible to students?`)) return;
+                                                                            setTestProcessing(test._id, 'publish', true);
+                                                                            try {
+                                                                                const token = await user?.getIdToken();
+                                                                                const res = await fetch(`${API_BASE_URL}/api/tests/${test._id}`, {
+                                                                                    method: 'PUT',
+                                                                                    headers: {
+                                                                                        'Content-Type': 'application/json',
+                                                                                        'Authorization': `Bearer ${token}`
+                                                                                    },
+                                                                                    body: JSON.stringify({
+                                                                                        status: 'published',
+                                                                                        isVisible: true,
+                                                                                        updatedByName: user?.name || user?.displayName || (user?.email ? user.email.split('@')[0] : 'Admin')
+                                                                                    })
+                                                                                });
+                                                                                if (res.ok) {
+                                                                                    setTests(prev => prev.map(t => t._id === test._id ? { ...t, status: 'published', isVisible: true } : t));
+                                                                                    alert(`✅ "${test.title}" is now Published and visible to students!`);
+                                                                                } else {
+                                                                                    const errData = await res.json().catch(() => ({}));
+                                                                                    alert('Failed to publish: ' + (errData.message || 'Unknown error'));
+                                                                                }
+                                                                            } catch (e) {
+                                                                                alert('Error publishing test: ' + e.message);
+                                                                            } finally {
+                                                                                setTestProcessing(test._id, 'publish', false);
+                                                                            }
+                                                                        }}
+                                                                        className="flex items-center gap-1 text-xs font-black text-white bg-green-600 hover:bg-green-700 px-3.5 py-2 rounded-xl shadow-sm transition-all"
+                                                                        title="Approve and Publish this Draft"
+                                                                        disabled={processingTests[test._id]?.publish}
+                                                                    >
+                                                                        {processingTests[test._id]?.publish ? (
+                                                                            <span className="flex items-center gap-1">
+                                                                                <Loader2 className="animate-spin" size={12} />
+                                                                                Publishing...
+                                                                            </span>
+                                                                        ) : (
+                                                                            "✓ Approve & Publish"
+                                                                        )}
+                                                                    </button>
+                                                                )}
+                                                                <button
+                                                                    onClick={async () => {
+                                                                        setTestProcessing(test._id, 'delete', true);
+                                                                        try {
+                                                                            await handleDeleteTest(test._id);
+                                                                        } finally {
+                                                                            setTestProcessing(test._id, 'delete', false);
+                                                                        }
+                                                                    }}
+                                                                    className="p-2 text-rose-600 hover:text-rose-800 bg-rose-50 hover:bg-rose-100 border border-rose-100/60 rounded-xl transition-all duration-200 inline-flex items-center justify-center ml-1 shadow-xs"
+                                                                    disabled={processingTests[test._id]?.delete}
+                                                                >
+                                                                    {processingTests[test._id]?.delete ? (
+                                                                        <Loader2 className="animate-spin" size={16} />
+                                                                    ) : (
+                                                                        "Delete"
+                                                                    )}
+                                                                </button>
+                                                            </div>
                                                         </td>
                                                     </tr>
                                                 ))}
@@ -3289,62 +3409,79 @@ export default function AdminDashboard() {
                                         }}
                                     />
                                 )}
-
-                                <div className="flex justify-between items-center mb-6 border-b border-gray-200 pb-4">
-                                    <h2 className="text-2xl font-bold text-gray-800">Manage All Tests</h2>
-                                    <div className="flex items-center gap-3">
+                                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 border-b border-slate-150 pb-6 gap-4">
+                                    <div>
+                                        <h2 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-3">
+                                            <img src="/logo.png" alt="Apex Logo" className="h-7 w-auto object-contain" /> Manage All Tests
+                                        </h2>
+                                        <p className="text-sm font-semibold text-slate-500 mt-1">Organize, publish, split, or generate customized mockup tests</p>
+                                    </div>
+                                    <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
                                         <button 
                                             onClick={() => setShowCustomMockModal(true)}
-                                            className="px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg font-bold shadow-md hover:shadow-lg transition-all flex items-center gap-2"
+                                            className="px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-bold shadow-md hover:shadow-lg transition-all flex items-center gap-2 hover:-translate-y-0.5"
                                             title="Combine multiple tests to generate new drafts"
                                         >
                                             <Combine size={18} /> Custom Generator
                                         </button>
-                                        <div className="w-px h-6 bg-gray-300 mx-1 hidden md:block"></div>
-                                        <label className="text-sm font-semibold text-gray-600">Sort By:</label>
-                                        <select
-                                            value={sortTestsBy}
-                                            onChange={(e) => setSortTestsBy(e.target.value)}
-                                            className="border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-800 bg-white focus:ring-2 focus:ring-indigo-500"
-                                        >
-                                            <option value="newest">Newest First</option>
-                                            <option value="oldest">Oldest First</option>
-                                            <option value="alpha-asc">Alphabetical (A→Z)</option>
-                                            <option value="alpha-desc">Alphabetical (Z→A)</option>
-                                        </select>
+                                        <div className="w-px h-6 bg-slate-200 mx-1 hidden md:block"></div>
+                                        <label className="text-xs font-black text-slate-400 uppercase tracking-widest">Sort By:</label>
+                                        <div className="relative">
+                                            <select
+                                                value={sortTestsBy}
+                                                onChange={(e) => setSortTestsBy(e.target.value)}
+                                                className="border border-slate-200 bg-slate-50 hover:bg-slate-100 rounded-xl px-4 py-2.5 text-xs font-bold focus:ring-2 focus:ring-indigo-500 outline-none appearance-none cursor-pointer pr-8"
+                                            >
+                                                <option value="newest">Newest First</option>
+                                                <option value="oldest">Oldest First</option>
+                                                <option value="alpha-asc">Alphabetical (A→Z)</option>
+                                                <option value="alpha-desc">Alphabetical (Z→A)</option>
+                                            </select>
+                                            <div className="absolute inset-y-0 right-2.5 flex items-center pointer-events-none text-slate-500">
+                                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" /></svg>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
                                 {draftTests.length > 0 && (
-                                    <>
-                                        <h2 className="text-2xl font-bold text-indigo-800 mb-4 pb-2 border-b-2 border-indigo-500 inline-block">Drafts (Awaiting Approval)</h2>
-                                        <p className="text-sm text-gray-500 mb-6">Tests uploaded by reviewers/uploaders saving as drafts. These are not visible anywhere until published.</p>
+                                    <div className="mb-10 animate-in fade-in duration-500">
+                                        <h2 className="text-xl font-black text-indigo-900 mb-2 uppercase tracking-wider flex items-center gap-2">
+                                            <div className="w-1.5 h-6 bg-indigo-500 rounded-full"></div> Drafts (Awaiting Approval)
+                                        </h2>
+                                        <p className="text-xs font-semibold text-slate-450 mb-6 uppercase tracking-wider">Tests uploaded by reviewers/uploaders saving as drafts. These are not visible anywhere until published.</p>
                                         {categories.map(cat => {
                                             const catTests = draftTests.filter(t => t.category === cat);
                                             if (catTests.length === 0) return null;
                                             return renderTestTable(catTests, `${cat} - Drafts`, `draft-${cat}`, true);
                                         })}
-                                    </>
+                                    </div>
                                 )}
 
-                                <h2 className="text-2xl font-bold text-gray-800 mb-4 mt-8 pt-8 border-t-2 border-green-500 inline-block w-full">Active Tests (Visible)</h2>
+                                <h2 className="text-xl font-black text-slate-900 mb-6 mt-12 pt-8 border-t border-slate-150 uppercase tracking-wider flex items-center gap-2">
+                                    <div className="w-1.5 h-6 bg-emerald-500 rounded-full"></div> Active Tests
+                                </h2>
                                 {categories.map(cat => {
                                     const catTests = activeTests.filter(t => t.category === cat);
                                     if (catTests.length === 0) return null;
                                     return renderTestTable(catTests, `${cat} - Active`, cat);
                                 })}
-                                {activeTests.length === 0 && <p className="text-gray-500 italic mb-8">No active, visible tests.</p>}
+                                {activeTests.length === 0 && <p className="text-slate-400 italic font-semibold mb-8 pl-1">No active, visible tests.</p>}
 
-                                <h2 className="text-2xl font-bold text-gray-800 mb-4 mt-8 pt-8 border-t-2 border-yellow-500 inline-block w-full">Hidden Tests (Drafts/Archived)</h2>
-                                <p className="text-sm text-gray-500 mb-6">These tests are deliberately hidden via the eye toggle and cannot be seen or attempted by students.</p>
+                                <h2 className="text-xl font-black text-slate-900 mb-2 mt-12 pt-8 border-t border-slate-150 uppercase tracking-wider flex items-center gap-2">
+                                    <div className="w-1.5 h-6 bg-amber-500 rounded-full"></div> Hidden Tests (Drafts/Archived)
+                                </h2>
+                                <p className="text-xs font-semibold text-slate-450 mb-6 uppercase tracking-wider">These tests are hidden via the visibility toggle and cannot be seen or attempted by students.</p>
                                 {categories.map(cat => {
                                     const catTests = hiddenTests.filter(t => t.category === cat);
                                     if (catTests.length === 0) return null;
                                     return renderTestTable(catTests, `${cat} - Hidden`, cat);
                                 })}
-                                {hiddenTests.length === 0 && <p className="text-gray-500 italic mb-8">No hidden tests.</p>}
+                                {hiddenTests.length === 0 && <p className="text-slate-400 italic font-semibold mb-8 pl-1">No hidden tests.</p>}
 
-                                <h2 className="text-2xl font-bold text-gray-800 mb-4 mt-8 pt-8 border-t-2 border-red-500 inline-block w-full">Expired Tests</h2>
+                                <h2 className="text-xl font-black text-slate-900 mb-6 mt-12 pt-8 border-t border-slate-150 uppercase tracking-wider flex items-center gap-2">
+                                    <div className="w-1.5 h-6 bg-red-500 rounded-full"></div> Expired Tests
+                                </h2>
                                 {categories.map(cat => {
                                     const catTests = expiredTests.filter(t => t.category === cat);
                                     if (catTests.length === 0) return null;
@@ -3358,10 +3495,13 @@ export default function AdminDashboard() {
 
             {/* Series Tab */}
             {activeTab === 'series' && (
-                <div className="space-y-8">
+                <div className="space-y-8 animate-in fade-in duration-500 max-w-5xl mx-auto pb-24">
                     {/* Create Series Section */}
-                    <div className="bg-white p-6 rounded-lg shadow border border-indigo-100">
-                        <h3 className="text-xl font-bold text-gray-800 mb-4 text-indigo-700">Create New Test Series</h3>
+                    <div className="bg-white rounded-3xl border border-slate-200/60 p-8 shadow-sm hover:shadow-md transition-all relative overflow-hidden">
+                        <div className="absolute -top-24 -right-24 w-64 h-64 bg-indigo-50/50 rounded-full blur-3xl opacity-60 pointer-events-none"></div>
+                        <h3 className="text-2xl font-black text-slate-800 mb-6 flex items-center gap-3">
+                                            <img src="/logo.png" alt="Apex Logo" className="h-6 w-auto object-contain" /> Create New Test Series
+                                        </h3>
                         <CreateSeriesForm onSuccess={fetchSeries} />
                     </div>
 
@@ -3374,56 +3514,60 @@ export default function AdminDashboard() {
                         const expiredSeries = seriesList.filter(s => isExpired(s.expiryDate));
 
                         const renderSeriesTable = (list, title, key) => (
-                            <div key={key} className="bg-white rounded-lg shadow overflow-hidden mb-8">
-                                <div className="p-6 border-b border-gray-200 bg-gray-50"><h3 className="text-xl font-bold text-gray-800">{title} ({list.length})</h3></div>
+                            <div key={key} className="bg-white rounded-3xl border border-slate-200/60 shadow-sm overflow-hidden mb-8 hover:shadow-md transition-all duration-300">
+                                <div className="p-6 border-b border-slate-100 bg-slate-50/50">
+                                    <h3 className="text-lg font-black text-slate-800 uppercase tracking-wider">{title} ({list.length})</h3>
+                                </div>
                                 <div className="overflow-x-auto">
-                                    <table className="min-w-full divide-y divide-gray-200">
-                                        <thead className="bg-gray-100">
+                                    <table className="min-w-full divide-y divide-slate-100">
+                                        <thead className="bg-slate-50/70">
                                             <tr>
-                                                <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase">Title</th>
-                                                <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase">Price</th>
-                                                <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase">Expiry</th>
-                                                <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase">Tests</th>
-                                                <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase">Actions</th>
+                                                <th className="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Title</th>
+                                                <th className="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Price</th>
+                                                <th className="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Expiry</th>
+                                                <th className="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Tests Included</th>
+                                                <th className="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Actions</th>
                                             </tr>
                                         </thead>
-                                        <tbody className="bg-white divide-y divide-gray-200">
+                                        <tbody className="bg-white divide-y divide-slate-100">
                                             {list.map((series) => (
-                                                <tr key={series.id} className="hover:bg-gray-50">
-                                                    <td className="px-6 py-4 font-medium text-gray-900">{series.title}</td>
-                                                    <td className="px-6 py-4 font-bold text-green-600">₹{series.price}</td>
-                                                    <td className="px-6 py-4 text-sm text-gray-500">
-                                                        {series.expiryDate ? new Date(series.expiryDate).toLocaleDateString() : 'No Expiry'}
+                                                <tr key={series.id} className="hover:bg-slate-50/50 transition-colors">
+                                                    <td className="px-6 py-4.5 font-bold text-slate-800 text-sm">{series.title}</td>
+                                                    <td className="px-6 py-4.5 font-black text-emerald-600 text-sm">₹{series.price}</td>
+                                                    <td className="px-6 py-4.5 text-xs font-semibold text-slate-500">
+                                                        {series.expiryDate ? new Date(series.expiryDate).toLocaleDateString() : <span className="text-emerald-600 font-bold">No Expiry</span>}
                                                     </td>
-                                                    <td className="px-6 py-4 text-sm">
-                                                        <span className="bg-gray-100 px-2 py-1 rounded text-gray-700 font-bold">{series.testIds?.length || 0} Tests</span>
+                                                    <td className="px-6 py-4.5">
+                                                        <span className="inline-block px-3 py-1 bg-indigo-50 border border-indigo-100/60 text-indigo-700 rounded-full text-xs font-black">
+                                                            {series.testIds?.length || 0} Tests
+                                                        </span>
                                                     </td>
-                                                    <td className="px-6 py-4 space-x-2">
+                                                    <td className="px-6 py-4.5 space-x-2">
                                                         <button
                                                             onClick={() => setManagingSeries(series)}
-                                                            className="text-indigo-600 hover:text-indigo-900 font-bold text-sm bg-indigo-50 px-3 py-1 rounded hover:bg-indigo-100 transition"
+                                                            className="p-2 text-indigo-650 hover:text-indigo-905 bg-indigo-50 hover:bg-indigo-100 border border-indigo-100/60 rounded-xl transition-all duration-200 inline-flex items-center justify-center"
                                                             title="Manage Tests in Series"
                                                         >
-                                                            <List size={18} />
+                                                            <List size={16} />
                                                         </button>
                                                         <button
                                                             onClick={() => setEditingSeries(series)}
-                                                            className="text-blue-600 hover:text-blue-800"
+                                                            className="p-2 text-blue-650 hover:text-blue-905 bg-blue-50 hover:bg-blue-100 border border-blue-100/60 rounded-xl transition-all duration-200 inline-flex items-center justify-center"
                                                             title="Edit Series"
                                                         >
-                                                            <Edit2 size={18} />
+                                                            <Edit2 size={16} />
                                                         </button>
                                                         <button
                                                             onClick={() => handleDeleteSeries(series.id)}
-                                                            className="text-red-500 hover:text-red-700 bg-red-50 px-2 py-1 rounded transition ml-2"
+                                                            className="p-2 text-red-500 hover:text-red-700 bg-red-55 hover:bg-red-100 border border-red-100/60 rounded-xl transition-all duration-200 inline-flex items-center justify-center ml-1"
                                                             title="Delete Series"
                                                         >
-                                                            <Trash size={18} />
+                                                            <Trash size={16} />
                                                         </button>
                                                     </td>
                                                 </tr>
                                             ))}
-                                            {list.length === 0 && <tr><td colSpan="5" className="text-center py-6 text-gray-400">No series found.</td></tr>}
+                                            {list.length === 0 && <tr><td colSpan="5" className="text-center py-8 text-slate-400 font-semibold italic">No series found.</td></tr>}
                                         </tbody>
                                     </table>
                                 </div>
@@ -3433,15 +3577,19 @@ export default function AdminDashboard() {
                         const categories = ['JEE Main', 'JEE Advanced', 'NEET', 'CAT', 'Board Exam', 'Others'];
 
                         return (
-                            <div>
-                                <h2 className="text-2xl font-bold text-gray-800 mb-4">Active Series (Categorized)</h2>
+                            <div className="mt-8">
+                                <h2 className="text-xl font-black text-slate-900 mb-6 uppercase tracking-wider flex items-center gap-2">
+                                    <div className="w-1.5 h-6 bg-emerald-500 rounded-full"></div> Active Series
+                                </h2>
                                 {categories.map(cat => {
                                     const catSeries = activeSeries.filter(s => s.category === cat);
                                     if (catSeries.length === 0) return null;
                                     return renderSeriesTable(catSeries, `${cat}`, cat);
                                 })}
 
-                                <h2 className="text-2xl font-bold text-gray-800 mb-4 mt-8 pt-8 border-t">Expired Series</h2>
+                                <h2 className="text-xl font-black text-slate-900 mb-6 mt-12 pt-8 border-t border-slate-150 uppercase tracking-wider flex items-center gap-2">
+                                    <div className="w-1.5 h-6 bg-red-500 rounded-full"></div> Expired Series
+                                </h2>
                                 {categories.map(cat => {
                                     const catSeries = expiredSeries.filter(s => s.category === cat);
                                     if (catSeries.length === 0) return null;
@@ -3507,64 +3655,66 @@ export default function AdminDashboard() {
                     </div>
                 </div>
             )}
-
-            {/* Students Tab */}
+                          {/* Students Tab */}
             {activeTab === 'users' && isMasterUnlocked && (
-                <div className="bg-white rounded-lg shadow overflow-hidden">
-                    <div className="p-6 border-b border-gray-200 bg-gray-50 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div className="bg-white rounded-3xl border border-slate-200/60 shadow-sm overflow-hidden flex flex-col group transition-all hover:shadow-md animate-in fade-in duration-500 max-w-5xl mx-auto pb-24">
+                    <div className="p-8 border-b border-slate-100 bg-slate-50/50 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                         <div>
-                            <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                            <h3 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-3">
+                                <img src="/logo.png" alt="Apex Logo" className="h-7 w-auto object-contain" />
                                 Students Management ({usersList.length})
                             </h3>
-                            <p className="text-xs text-gray-500 flex items-center gap-2">
-                                View and filter active students
-                            </p>
+                            <p className="text-sm font-semibold text-slate-500 mt-1">View, manage, block/unblock, and analyze student accounts</p>
                         </div>
-                        <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
-                            <button onClick={() => setIsMasterUnlocked(false)} className="text-sm text-gray-500 hover:text-red-500 font-medium flex items-center gap-1 transition-colors mr-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                        <div className="flex flex-wrap items-center gap-4 w-full md:w-auto shrink-0">
+                            <button onClick={() => setIsMasterUnlocked(false)} className="text-xs font-black text-slate-550 hover:text-red-500 uppercase tracking-widest flex items-center gap-1.5 transition-colors mr-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
                                 Lock Dashboard
                             </button>
 
                             <div className="relative flex-1 md:w-64">
-                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                                <Search className="absolute left-3.5 top-3 text-slate-400" size={16} />
                                 <input
                                     type="text"
                                     placeholder="Search by name or email..."
-                                    className="w-full pl-10 pr-4 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
+                                    className="w-full bg-slate-50 hover:bg-slate-100/80 focus:bg-white border border-slate-200 rounded-xl py-2.5 pl-10 pr-4 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all outline-none"
                                     value={studentSearch || ''}
                                     onChange={(e) => setStudentSearch(e.target.value)}
                                 />
                             </div>
-                            <select
-                                className="border rounded-lg px-3 py-2 text-sm font-medium focus:ring-2 focus:ring-indigo-500 outline-none bg-white"
-                                value={studentFieldFilter || 'All'}
-                                onChange={(e) => setStudentFieldFilter(e.target.value)}
-                            >
-                                <option value="All">All Fields</option>
-                                <option value="JEE Main">JEE Main</option>
-                                <option value="JEE Advanced">JEE Advanced</option>
-                                <option value="NEET">NEET</option>
-                                <option value="CAT">CAT</option>
-                                <option value="Board">Board</option>
-                                <option value="Other">Other</option>
-                            </select>
+                            <div className="relative">
+                                <select
+                                    className="border border-slate-200 bg-slate-50 hover:bg-slate-100/80 rounded-xl px-4 py-2.5 text-xs font-bold focus:ring-2 focus:ring-indigo-500 outline-none appearance-none cursor-pointer pr-8"
+                                    value={studentFieldFilter || 'All'}
+                                    onChange={(e) => setStudentFieldFilter(e.target.value)}
+                                >
+                                    <option value="All">All Fields</option>
+                                    <option value="JEE Main">JEE Main</option>
+                                    <option value="JEE Advanced">JEE Advanced</option>
+                                    <option value="NEET">NEET</option>
+                                    <option value="CAT">CAT</option>
+                                    <option value="Board">Board</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                                <div className="absolute inset-y-0 right-2.5 flex items-center pointer-events-none text-slate-500">
+                                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" /></svg>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div className="overflow-x-auto">
-                        <table className="min-w-full divide-y divide-gray-200">
-                            <thead className="bg-gray-100">
+                        <table className="min-w-full divide-y divide-slate-100">
+                            <thead className="bg-slate-50/70">
                                 <tr>
-                                    <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase">User</th>
-                                    <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase">Contact</th>
-                                    <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase">Field & Class</th>
-                                    <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase">Location</th>
-                                    <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase">Status</th>
-                                    <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase">Actions</th>
+                                    <th className="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">User</th>
+                                    <th className="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Contact</th>
+                                    <th className="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Field &amp; Class</th>
+                                    <th className="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Location</th>
+                                    <th className="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
+                                    <th className="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody className="bg-white divide-y divide-gray-200">
+                            <tbody className="bg-white divide-y divide-slate-100">
                                 {usersList
                                     .filter(student => {
                                         const matchesSearch = (student.name?.toLowerCase() || '').includes(studentSearch.toLowerCase()) ||
@@ -3575,57 +3725,57 @@ export default function AdminDashboard() {
                                         return matchesSearch && matchesField;
                                     })
                                     .map((student) => (
-                                        <tr key={student.id} className="hover:bg-gray-50 transition-colors">
-                                            <td className="px-6 py-4 whitespace-nowrap">
+                                        <tr key={student.id} className="hover:bg-slate-50/50 transition-colors">
+                                            <td className="px-6 py-4.5 whitespace-nowrap">
                                                 <div className="flex items-center">
-                                                    <div className="h-10 w-10 flex-shrink-0">
+                                                    <div className="h-10 w-10 flex-shrink-0 relative">
                                                         {student.photoURL ? (
-                                                            <img className="h-10 w-10 rounded-full object-cover border border-gray-200" src={student.photoURL} alt="" referrerPolicy="no-referrer" />
+                                                            <img className="h-10 w-10 rounded-full object-cover border border-slate-200/80 shadow-sm" src={student.photoURL} alt="" referrerPolicy="no-referrer" />
                                                         ) : (
-                                                            <div className="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-500 font-bold">
-                                                                {student.name?.charAt(0) || 'U'}
+                                                            <div className="h-10 w-10 rounded-full bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 font-black text-sm shadow-inner">
+                                                                 {student.name?.charAt(0).toUpperCase() || 'U'}
                                                             </div>
                                                         )}
                                                     </div>
                                                     <div className="ml-4">
-                                                        <div className="text-sm font-medium text-gray-900">{student.name}</div>
-                                                        <div className="text-xs text-gray-500">{student.email}</div>
-                                                        <div className="text-[10px] text-gray-400 mt-1 uppercase tracking-wide">{student.role}</div>
+                                                        <div className="text-sm font-bold text-slate-805 leading-snug">{student.name}</div>
+                                                        <div className="text-xs text-slate-450 font-semibold mt-0.5">{student.email}</div>
+                                                        <div className="text-[9px] font-black text-slate-400 tracking-wider uppercase mt-1 inline-block bg-slate-100 px-1.5 py-0.5 rounded">{student.role}</div>
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <div className="text-sm text-gray-900">{student.phone || student.phoneNumber || 'N/A'}</div>
-                                                <div className="text-xs text-blue-500">{student.authProvider === 'google' ? 'Google Auth' : 'Phone Auth'}</div>
+                                            <td className="px-6 py-4.5 whitespace-nowrap">
+                                                <div className="text-sm font-semibold text-slate-700 leading-snug">{student.phone || student.phoneNumber || <span className="text-slate-350 italic font-medium">N/A</span>}</div>
+                                                <div className="text-[10px] font-bold text-indigo-650 bg-indigo-50 border border-indigo-100/60 rounded px-1.5 py-0.5 w-fit mt-1">{student.authProvider === 'google' ? 'Google Auth' : 'Phone Auth'}</div>
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <div className="text-sm font-bold text-indigo-600">
-                                                    {student.interest || student.category || student.selectedField || <span className="text-gray-400 italic font-normal">Not Specified</span>}
+                                            <td className="px-6 py-4.5 whitespace-nowrap">
+                                                <div className="text-sm font-black text-indigo-700 leading-snug">
+                                                    {student.interest || student.category || student.selectedField || <span className="text-slate-350 italic font-normal">Not Specified</span>}
                                                 </div>
-                                                <div className="text-xs text-gray-500">{student.class || 'No Class Info'}</div>
+                                                <div className="text-xs font-semibold text-slate-450 mt-0.5">Class: {student.class || 'N/A'}</div>
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <div className="text-sm text-gray-900">{student.city || 'N/A'}</div>
-                                                <div className="text-xs text-gray-500">{student.state || 'N/A'}</div>
+                                            <td className="px-6 py-4.5 whitespace-nowrap">
+                                                <div className="text-sm font-semibold text-slate-700 leading-snug">{student.city || <span className="text-slate-350 italic font-medium">N/A</span>}</div>
+                                                <div className="text-xs text-slate-450 font-semibold mt-0.5">{student.state || 'N/A'}</div>
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
+                                            <td className="px-6 py-4.5 whitespace-nowrap">
                                                 {student.status === 'blocked' ? (
-                                                    <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                                    <span className="px-3 py-1 bg-red-50 text-red-700 border border-red-150 rounded-full text-xs font-black uppercase tracking-wider">
                                                         Blocked
                                                     </span>
                                                 ) : (
-                                                    <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                                    <span className="px-3 py-1 bg-emerald-50 text-emerald-700 border border-emerald-150 rounded-full text-xs font-black uppercase tracking-wider">
                                                         Active
                                                     </span>
                                                 )}
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                <div className="flex items-center space-x-3">
+                                            <td className="px-6 py-4.5 whitespace-nowrap text-sm font-medium">
+                                                <div className="flex items-center gap-2">
                                                     {/* Role Toggle */}
                                                     {user?.adminLevel === 1 && (
                                                         <button
                                                             onClick={() => handleUpdateRole(student.id, student.role === 'admin' ? 'student' : 'admin')}
-                                                            className={`text-xs px-2 py-1 rounded border ${student.role === 'admin' ? 'bg-indigo-50 text-indigo-700 border-indigo-200' : 'bg-gray-50 text-gray-600 border-gray-200'}`}
+                                                            className={`text-xs px-2.5 py-1.5 rounded-xl font-bold border transition-all ${student.role === 'admin' ? 'bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border-indigo-200' : 'bg-slate-50 hover:bg-slate-100 text-slate-650 border-slate-200'}`}
                                                         >
                                                             {student.role === 'admin' ? 'Demote' : 'Promote'}
                                                         </button>
@@ -3633,22 +3783,24 @@ export default function AdminDashboard() {
 
                                                     {/* Admin Level Assignment (For Level 1 Admins only) */}
                                                     {user?.adminLevel === 1 && student.role === 'admin' && (
-                                                        <select
-                                                            value={student.adminLevel || 1}
-                                                            onChange={(e) => handleUpdateAdminLevel(student.id, e.target.value)}
-                                                            className="text-xs px-2 py-1 rounded border bg-purple-50 text-purple-700 border-purple-200 outline-none"
-                                                            title="Set Admin Level"
-                                                        >
-                                                            <option value={1}>L1 (Super)</option>
-                                                            <option value={2}>L2 (Review)</option>
-                                                            <option value={3}>L3 (Upload)</option>
-                                                        </select>
+                                                        <div className="relative">
+                                                            <select
+                                                                value={student.adminLevel || 1}
+                                                                onChange={(e) => handleUpdateAdminLevel(student.id, e.target.value)}
+                                                                className="text-xs px-3 py-1.5 rounded-xl border bg-purple-50 text-purple-700 border-purple-200 font-bold outline-none appearance-none pr-6"
+                                                                title="Set Admin Level"
+                                                            >
+                                                                <option value={1}>L1 (Super)</option>
+                                                                <option value={2}>L2 (Review)</option>
+                                                                <option value={3}>L3 (Upload)</option>
+                                                            </select>
+                                                        </div>
                                                     )}
 
                                                     {/* Status Toggle (Block/Unblock) */}
                                                     <button
                                                         onClick={() => handleUpdateStatus(student.id, student.status || 'active')}
-                                                        className={`text-xs px-2 py-1 rounded border font-bold ${student.status === 'blocked' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-red-50 text-red-700 border-red-200'}`}
+                                                        className={`text-xs px-2.5 py-1.5 rounded-xl border font-black transition-all uppercase tracking-wide ${student.status === 'blocked' ? 'bg-green-50 hover:bg-green-100 text-green-700 border-green-200' : 'bg-red-55 hover:bg-red-100 text-red-700 border-red-200'}`}
                                                     >
                                                         {student.status === 'blocked' ? 'Unblock' : 'Block'}
                                                     </button>
@@ -3656,19 +3808,19 @@ export default function AdminDashboard() {
                                                     {/* View Report */}
                                                     <button
                                                         onClick={() => setViewingStudent(student)}
-                                                        className="text-indigo-600 hover:text-indigo-900"
+                                                        className="p-2 text-indigo-650 hover:text-indigo-905 bg-indigo-50 hover:bg-indigo-100 border border-indigo-100/60 rounded-xl transition-all duration-200 inline-flex items-center justify-center"
                                                         title="View Performance"
                                                     >
-                                                        <BarChart2 size={18} />
+                                                        <BarChart2 size={16} />
                                                     </button>
 
                                                     {/* Delete User */}
                                                     <button
                                                         onClick={() => handleDeleteUser(student.id)}
-                                                        className="text-red-500 hover:text-red-700 p-1 hover:bg-red-50 rounded"
+                                                        className="p-2 text-red-500 hover:text-red-750 bg-red-55 hover:bg-red-100 border border-red-100/60 rounded-xl transition-all duration-200 inline-flex items-center justify-center"
                                                         title="Delete User Permanently"
                                                     >
-                                                        <Trash size={18} />
+                                                        <Trash size={16} />
                                                     </button>
                                                 </div>
                                             </td>
@@ -3676,7 +3828,7 @@ export default function AdminDashboard() {
                                     ))}
                                 {usersList.length === 0 && (
                                     <tr>
-                                        <td colSpan="6" className="px-6 py-4 text-center text-sm text-gray-500">
+                                        <td colSpan="6" className="px-6 py-8 text-center text-slate-400 font-semibold italic">
                                             No students found.
                                         </td>
                                     </tr>
@@ -3687,78 +3839,80 @@ export default function AdminDashboard() {
                 </div>
             )}    {/* Revenue Tab */}
             {activeTab === 'revenue' && isMasterUnlocked && revenueStats && (
-                <div className="space-y-6">
+                <div className="space-y-8 animate-in fade-in duration-500 max-w-5xl mx-auto pb-24">
                     {/* Summary Cards */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="bg-green-50 p-6 rounded-lg text-center border border-green-200 shadow-sm transition-transform hover:-translate-y-1">
-                            <h4 className="text-gray-600 font-bold uppercase tracking-wider text-sm flex items-center justify-center gap-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-green-500" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" /></svg>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div className="bg-emerald-50/45 border border-emerald-150 p-8 rounded-3xl text-center relative overflow-hidden group hover:shadow-md transition-all duration-300">
+                            <div className="absolute -top-12 -right-12 w-32 h-32 bg-emerald-100 rounded-full blur-2xl opacity-60 pointer-events-none"></div>
+                            <h4 className="text-slate-500 font-black uppercase tracking-wider text-xs flex items-center justify-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-emerald-500" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" /></svg>
                                 Total Revenue
                             </h4>
-                            <p className="text-5xl font-black text-green-700 mt-3 drop-shadow-sm">₹{(revenueStats?.totalRevenue || 0).toLocaleString('en-IN')}</p>
+                            <p className="text-5xl font-black text-emerald-700 mt-4 tracking-tight">₹{(revenueStats?.totalRevenue || 0).toLocaleString('en-IN')}</p>
                         </div>
-                        <div className="bg-blue-50 p-6 rounded-lg text-center border border-blue-200 shadow-sm transition-transform hover:-translate-y-1">
-                            <h4 className="text-gray-600 font-bold uppercase tracking-wider text-sm flex items-center justify-center gap-2">
+                        <div className="bg-blue-50/45 border border-blue-150 p-8 rounded-3xl text-center relative overflow-hidden group hover:shadow-md transition-all duration-300">
+                            <div className="absolute -top-12 -right-12 w-32 h-32 bg-blue-100 rounded-full blur-2xl opacity-60 pointer-events-none"></div>
+                            <h4 className="text-slate-500 font-black uppercase tracking-wider text-xs flex items-center justify-center gap-2">
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-500" viewBox="0 0 20 20" fill="currentColor"><path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" /></svg>
                                 Total Orders
                             </h4>
-                            <p className="text-5xl font-black text-blue-700 mt-3 drop-shadow-sm">{revenueStats.totalOrders}</p>
+                            <p className="text-5xl font-black text-blue-700 mt-4 tracking-tight">{revenueStats.totalOrders}</p>
                         </div>
                     </div>
 
                     {/* Transactions Table */}
-                    <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
-                        <div className="p-6 border-b border-gray-100 bg-gray-50/50 flex justify-between items-center">
-                            <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" /></svg>
+                    <div className="bg-white rounded-3xl border border-slate-200/60 shadow-sm overflow-hidden flex flex-col group transition-all hover:shadow-md">
+                        <div className="p-8 border-b border-slate-105 bg-slate-50/50 flex justify-between items-center">
+                            <h3 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-3">
+                                <img src="/logo.png" alt="Apex Logo" className="h-7 w-auto object-contain" />
                                 Recent Transactions
                             </h3>
-                            <button onClick={() => setIsMasterUnlocked(false)} className="text-sm text-gray-500 hover:text-red-500 font-medium flex items-center gap-1 transition-colors">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                            <button onClick={() => setIsMasterUnlocked(false)} className="text-xs font-black text-slate-550 hover:text-red-505 uppercase tracking-widest flex items-center gap-1.5 transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
                                 Lock Dashboard
                             </button>
                         </div>
                         <div className="overflow-x-auto">
-                            <table className="min-w-full divide-y divide-gray-200">
-                                <thead className="bg-gray-50">
+                            <table className="min-w-full divide-y divide-slate-100">
+                                <thead className="bg-slate-50/70">
                                     <tr>
-                                        <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Date</th>
-                                        <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Student</th>
-                                        <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Item Name</th>
-                                        <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider border-l border-gray-100">Amount Paid</th>
-                                        <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider text-purple-600">Coupon Used</th>
-                                        <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider text-orange-600">Discount</th>
-                                        <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
-                                        <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Ref ID</th>
+                                        <th className="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Date</th>
+                                        <th className="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Student</th>
+                                        <th className="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Item Name</th>
+                                        <th className="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Amount Paid</th>
+                                        <th className="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Coupon Used</th>
+                                        <th className="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Discount</th>
+                                        <th className="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
+                                        <th className="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Ref ID</th>
                                     </tr>
                                 </thead>
-                                <tbody className="bg-white divide-y divide-gray-200">
+                                <tbody className="bg-white divide-y divide-slate-100">
                                     {revenueStats.orders?.map((order) => (
-                                        <tr key={order.id} className="hover:bg-gray-50">
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{order.createdAt ? new Date(order.createdAt).toLocaleDateString() : 'N/A'}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">{order.userName}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-gray-600">{order.itemName}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap font-bold text-green-600">₹{order.amount}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
+                                        <tr key={order.id} className="hover:bg-slate-50/50 transition-colors">
+                                            <td className="px-6 py-4.5 whitespace-nowrap text-xs font-semibold text-slate-500">{order.createdAt ? new Date(order.createdAt).toLocaleDateString() : 'N/A'}</td>
+                                            <td className="px-6 py-4.5 whitespace-nowrap font-bold text-slate-800 text-sm">{order.userName}</td>
+                                            <td className="px-6 py-4.5 whitespace-nowrap text-slate-600 text-sm font-semibold">{order.itemName}</td>
+                                            <td className="px-6 py-4.5 whitespace-nowrap font-black text-emerald-600 text-sm">₹{order.amount}</td>
+                                            <td className="px-6 py-4.5 whitespace-nowrap">
                                                 {order.couponCode ? (
-                                                    <span className="px-2 py-1 text-xs font-bold rounded-full bg-purple-100 text-purple-700 font-mono">{order.couponCode}</span>
-                                                ) : <span className="text-gray-300 text-xs">—</span>}
+                                                    <span className="px-2.5 py-1 text-[10px] font-black rounded-lg bg-purple-50 border border-purple-200 text-purple-700 font-mono uppercase tracking-wide">{order.couponCode}</span>
+                                                ) : <span className="text-slate-300 text-xs font-bold">—</span>}
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
+                                            <td className="px-6 py-4.5 whitespace-nowrap">
                                                 {order.discountAmount > 0 ? (
-                                                    <span className="text-orange-600 font-bold text-sm">-₹{order.discountAmount}</span>
-                                                ) : <span className="text-gray-300 text-xs">—</span>}
+                                                    <span className="text-orange-600 font-extrabold text-xs">-₹{order.discountAmount}</span>
+                                                ) : <span className="text-slate-300 text-xs font-bold">—</span>}
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <span className={`px-2 py-1 text-xs font-bold rounded-full uppercase ${order.status === 'paid' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                                            <td className="px-6 py-4.5 whitespace-nowrap">
+                                                <span className={`px-2.5 py-1 text-[10px] font-black rounded-full uppercase tracking-wider border ${order.status === 'paid' ? 'bg-green-50 text-green-700 border-green-150' : 'bg-amber-50 text-amber-700 border-amber-150'}`}>
                                                     {order.status}
                                                 </span>
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-xs text-gray-400 font-mono">{order.paymentId || order.razorpayOrderId}</td>
+                                            <td className="px-6 py-4.5 whitespace-nowrap text-[10px] text-slate-400 font-mono tracking-tighter">{order.paymentId || order.razorpayOrderId}</td>
                                         </tr>
                                     ))}
                                     {(!revenueStats.orders || revenueStats.orders.length === 0) && (
-                                        <tr><td colSpan="8" className="text-center py-8 text-gray-500">No transactions found.</td></tr>
+                                        <tr><td colSpan="8" className="text-center py-8 text-slate-400 font-semibold italic">No transactions found.</td></tr>
                                     )}
                                 </tbody>
                             </table>
@@ -3767,35 +3921,34 @@ export default function AdminDashboard() {
                 </div>
             )}
 
-            {/* Content Tab */}
             {activeTab === 'content' && isMasterUnlocked && (
                 <div className="space-y-8">
                     {/* Coupon Manager */}
                     <CouponManager user={user} />
 
                     {/* Syllabus Management */}
-                    <div className="bg-white rounded-lg shadow border border-gray-200 p-6">
-                        <div className="flex justify-between items-start mb-6">
-                            <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
-                                <BookOpen className="text-indigo-600" /> Syllabus Management
+                    <div className="bg-white rounded-3xl border border-slate-200/60 shadow-sm overflow-hidden flex flex-col group transition-all hover:shadow-md">
+                        <div className="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-zinc-50/50">
+                            <h3 className="text-lg font-black text-slate-900 tracking-tight flex items-center gap-2">
+                                <img src="/logo.png" alt="Apex Logo" className="h-5 w-auto object-contain" /> Syllabus Management
                             </h3>
-                            <button onClick={() => setIsMasterUnlocked(false)} className="text-sm text-gray-500 hover:text-red-500 font-medium flex items-center gap-1 transition-colors">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                            <button onClick={() => setIsMasterUnlocked(false)} className="text-xs font-black text-slate-550 hover:text-red-500 uppercase tracking-widest flex items-center gap-1.5 transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
                                 Lock Dashboard
                             </button>
                         </div>
 
-                        <div className="max-w-3xl">
+                        <div className="p-8 max-w-3xl">
                             <div className="mb-6">
-                                <label className="block text-sm font-medium text-gray-700 mb-2">Select Exam Category</label>
+                                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2.5 ml-1">Select Exam Category</label>
                                 <div className="flex flex-wrap gap-2">
                                     {Object.keys(syllabusData).map(cat => (
                                         <button
                                             key={cat}
                                             onClick={() => setSelectedSyllabusCategory(cat)}
-                                            className={`px-4 py-2 rounded-full text-sm font-bold border transition-colors ${selectedSyllabusCategory === cat
-                                                ? 'bg-indigo-600 text-white border-indigo-600'
-                                                : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'
+                                            className={`px-4 py-2 rounded-full text-xs font-black border transition-all ${selectedSyllabusCategory === cat
+                                                ? 'bg-indigo-650 text-white border-indigo-650 shadow-sm scale-105'
+                                                : 'bg-white text-slate-650 border-slate-200 hover:bg-slate-50'
                                                 }`}
                                         >
                                             {cat}
@@ -3805,38 +3958,38 @@ export default function AdminDashboard() {
                             </div>
 
                             <div className="mb-6">
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Syllabus PDF Link for <span className="text-indigo-600 font-bold">{selectedSyllabusCategory}</span>
+                                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2.5 ml-1">
+                                    Syllabus PDF Link for <span className="text-indigo-650 font-black">{selectedSyllabusCategory}</span>
                                 </label>
-                                <div className="flex gap-2">
+                                <div className="flex gap-3">
                                     <input
                                         type="text"
                                         value={syllabusLink || ''}
                                         onChange={(e) => setSyllabusLink(e.target.value)}
                                         placeholder="Paste Google Drive or PDF link here..."
-                                        className="flex-1 border border-gray-300 rounded-md p-3 focus:ring-2 focus:ring-indigo-500 outline-none"
+                                        className="flex-1 bg-slate-50 border border-slate-200/60 rounded-2xl px-4 py-3 text-sm font-semibold text-slate-800 placeholder-slate-400 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all"
                                     />
                                     <button
                                         onClick={handleSaveSyllabus}
                                         disabled={savingSyllabus}
-                                        className="px-6 py-3 bg-green-600 text-white font-bold rounded-md hover:bg-green-700 disabled:opacity-50 flex items-center gap-2"
+                                        className="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-2xl text-sm shadow-md hover:shadow-lg transition-all disabled:opacity-50 flex items-center gap-2 shrink-0"
                                     >
                                         {savingSyllabus ? 'Saving...' : <><Save size={18} /> Save Link</>}
                                     </button>
                                 </div>
-                                <p className="text-xs text-gray-500 mt-2">
-                                    Paste the shareable link of the PDF (e.g., Google Drive link with "Anyone with the link" access).
+                                <p className="text-xs text-slate-450 mt-2 font-medium">
+                                    Paste the shareable link of the PDF (e.g., Google Drive link with &quot;Anyone with the link&quot; access).
                                 </p>
                             </div>
 
                             {syllabusLink && (
-                                <div className="p-4 bg-gray-50 rounded border border-gray-200">
-                                    <p className="text-sm font-bold text-gray-700 mb-2">Preview Action:</p>
+                                <div className="p-4.5 bg-slate-50 rounded-2xl border border-slate-200/60 mt-6">
+                                    <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Preview Action:</p>
                                     <a
                                         href={syllabusLink}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="text-indigo-600 underline font-medium flex items-center gap-1"
+                                        className="text-indigo-650 hover:text-indigo-850 font-bold flex items-center gap-2 transition-colors text-sm"
                                     >
                                         <Download size={16} /> Download / View Syllabus
                                     </a>
@@ -3868,8 +4021,8 @@ export default function AdminDashboard() {
                     {/* Header Details */}
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white/60 backdrop-blur-xl border border-slate-200/60 p-6 rounded-3xl shadow-sm">
                         <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/20">
-                                <BookOpen size={24} />
+                            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/20 p-2">
+                                <img src="/logo.png" alt="Apex Logo" className="h-full w-auto object-contain brightness-0 invert" />
                             </div>
                             <div>
                                 <h1 className="text-2xl font-black text-slate-900 tracking-tight">Create New Assessment</h1>
@@ -4122,58 +4275,33 @@ export default function AdminDashboard() {
 
                         {/* Bulk Actions Command Center */}
                         <div className="lg:col-span-12">
-                            <div className="relative overflow-hidden rounded-3xl bg-slate-900 border border-slate-800 shadow-xl">
-                                <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
-                                <div className="absolute bottom-0 left-0 w-64 h-64 bg-violet-500/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
+                            <div className="relative overflow-hidden rounded-3xl bg-white border border-slate-200/60 p-8 shadow-sm hover:shadow-md transition-all duration-300">
+                                <div className="absolute -top-24 -right-24 w-64 h-64 bg-indigo-50/50 rounded-full blur-3xl opacity-60 pointer-events-none"></div>
 
-                                <div className="relative px-8 py-6 flex flex-col md:flex-row justify-between items-center gap-6">
+                                <div className="relative flex flex-col md:flex-row justify-between items-center gap-6">
                                     <div className="flex items-center gap-4">
-                                        <div className="p-3 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-md">
-                                            <Zap size={24} className="text-amber-400" />
+                                        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/20 p-2">
+                                            <img src="/logo.png" alt="Apex Logo" className="h-full w-auto object-contain brightness-0 invert" />
                                         </div>
                                         <div>
-                                            <h4 className="font-black text-white text-lg tracking-tight">Bulk Actions Command Center</h4>
-                                            <p className="text-sm font-medium text-slate-400 mt-0.5">Rapidly add or process multiple questions at once.</p>
+                                            <h4 className="font-black text-slate-900 text-lg tracking-tight">Bulk Actions Command Center</h4>
+                                            <p className="text-sm font-medium text-slate-500 mt-0.5">Upload exam sheets and questions dynamically using artificial intelligence.</p>
                                         </div>
                                     </div>
-                                    <div className="flex flex-wrap items-center gap-3 mt-4 lg:mt-0">
+                                    <div className="flex flex-wrap items-center gap-3 shrink-0">
                                         <button
-                                            onClick={() => setShowBulkUpload(true)}
-                                            className="px-5 py-3 bg-white/5 text-white rounded-2xl border border-white/10 font-bold flex items-center gap-2 hover:bg-white/10 transition-all text-sm backdrop-blur-md hover:-translate-y-0.5"
+                                            onClick={() => setShowQuickMarkModal(true)}
+                                            className="px-5 py-3.5 bg-white border border-slate-200 hover:bg-slate-50 hover:text-slate-900 rounded-2xl shadow-sm hover:shadow-md transition-all font-bold flex items-center gap-2 hover:-translate-y-0.5 text-sm"
                                         >
-                                            <UploadCloud size={18} className="text-indigo-400" /> Excel / CSV Upload
-                                        </button>
-                                        <button
-                                            onClick={() => setShowPdfModal(true)}
-                                            className="px-6 py-3 bg-gradient-to-r from-indigo-500 to-violet-600 text-white rounded-2xl shadow-lg shadow-indigo-500/25 font-bold flex items-center gap-2 hover:shadow-indigo-500/40 transition-all text-sm hover:-translate-y-0.5 border border-indigo-400/50"
-                                            title="Extract and upload images from PDF"
-                                        >
-                                            <ImageIcon size={18} /> Upload by PDF Image
-                                        </button>
-                                        <button
-                                            onClick={() => setShowPdfTextModal(true)}
-                                            className="px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-2xl shadow-lg shadow-emerald-500/25 font-bold flex items-center gap-2 hover:shadow-emerald-500/40 transition-all text-sm hover:-translate-y-0.5 border border-emerald-400/50"
-                                            title="Extract text directly from PDF"
-                                        >
-                                            <Type size={18} /> Upload by PDF Text
-                                        </button>
-                                        <button
-                                            onClick={() => setShowMarkerModal(true)}
-                                            className="px-6 py-3 bg-gradient-to-r from-fuchsia-500 to-pink-600 text-white rounded-2xl shadow-lg shadow-pink-500/25 font-bold flex items-center gap-2 hover:shadow-pink-500/40 transition-all text-sm hover:-translate-y-0.5 border border-pink-400/50 relative overflow-hidden group"
-                                            title="Extract text and equations automatically using Marker AI"
-                                        >
-                                            <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
-                                            <Zap size={18} className="relative z-10" /> <span className="relative z-10">Upload via Marker AI</span>
+                                            <ListChecks size={18} className="text-indigo-600" />
+                                            <span>Full-Page Editor & Marking Grid ({questions.length})</span>
                                         </button>
                                         <button
                                             onClick={() => setShowGeminiModal(true)}
-                                            className="px-8 py-4 bg-gradient-to-r from-indigo-600 to-violet-700 text-white rounded-3xl shadow-2xl shadow-indigo-500/30 font-black flex items-center gap-3 hover:shadow-indigo-500/50 transition-all text-base hover:-translate-y-1 border border-indigo-400/50 relative overflow-hidden group"
-                                            title="Apex AI high-precision Digitizer — MCQs, MSQs, & LaTeX"
+                                            className="px-6 py-3.5 bg-gradient-to-r from-indigo-600 to-purple-650 text-white rounded-2xl shadow-md hover:shadow-lg transition-all font-bold flex items-center gap-2 hover:-translate-y-0.5 text-sm"
                                         >
-                                            <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
-                                            <Sparkles size={20} className="relative z-10 text-amber-300" /> 
-                                            <span className="relative z-10">Apex AI Digitizer</span>
-                                            <span className="relative z-10 bg-white/20 text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">Pro</span>
+                                            <img src="/logo.png" alt="Apex Logo" className="h-4.5 w-auto object-contain brightness-0 invert" />
+                                            <span>Apex x Gemini Uploader</span>
                                         </button>
                                     </div>
                                 </div>
@@ -4185,7 +4313,7 @@ export default function AdminDashboard() {
 
                             {/* Left Column: Authoring Studio — takes up most space */}
                             <div className="xl:col-span-9 2xl:col-span-9 flex flex-col space-y-6">
-                                <div className="bg-white rounded-3xl border border-slate-200/60 shadow-sm overflow-hidden flex flex-col transition-all hover:shadow-md">
+                                <div id="question-authoring-studio" className="bg-white rounded-3xl border border-slate-200/60 shadow-sm overflow-hidden flex flex-col transition-all hover:shadow-md">
                                     <div className="px-8 py-6 border-b border-slate-100 flex items-center justify-between bg-zinc-50/50">
                                         <div className="flex items-center gap-3">
                                             <div className="bg-indigo-50 text-indigo-600 p-2 rounded-xl border border-indigo-100/50"><Plus size={16} /></div>
@@ -4194,6 +4322,13 @@ export default function AdminDashboard() {
                                                 <p className="text-[11px] font-medium text-slate-500 uppercase tracking-widest mt-0.5">Draft new questions</p>
                                             </div>
                                         </div>
+                                        <button
+                                            onClick={() => setShowQuickMarkModal(true)}
+                                            className="flex items-center gap-2 px-4 py-2.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-xl font-bold text-xs transition-all border border-indigo-100/60 shadow-sm"
+                                        >
+                                            <Edit3 size={14} />
+                                            Full-Page Editor & Marking Grid ({questions.length})
+                                        </button>
                                     </div>
 
                                     <div className="p-8 space-y-8">
@@ -4515,124 +4650,197 @@ export default function AdminDashboard() {
                                     </div>
                                 </div>
                             </div>
+                        </div>
 
-                            {/* Right Column: Queue Inspector — slim sidebar */}
-                            <div className="xl:col-span-3 2xl:col-span-3 flex flex-col h-full max-h-[calc(100vh-12rem)] sticky top-6">
-                                <div className="bg-slate-900 rounded-3xl shadow-xl overflow-hidden flex flex-col h-full border border-slate-800">
-
-                                    {/* Queue Header */}
-                                    <div className="relative overflow-hidden px-8 py-6 bg-slate-900 border-b border-slate-800 flex justify-between items-center z-10 shrink-0">
-                                        <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-violet-500/10 pointer-events-none"></div>
-                                        <div className="flex items-center gap-4 relative z-10">
-                                            <div className="bg-white/10 text-white p-2.5 rounded-xl backdrop-blur-md border border-white/5"><List size={18} className="text-indigo-300" /></div>
+                        {/* Right Column: Draft Questions Queue Sidebar */}
+                        <div className="xl:col-span-3 2xl:col-span-3 flex flex-col space-y-6 sticky top-6">
+                                <div className="bg-white rounded-3xl border border-slate-200/60 shadow-sm overflow-hidden flex flex-col transition-all hover:shadow-md">
+                                    <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-zinc-50/50">
+                                        <div className="flex items-center gap-2">
+                                            <Layers className="text-indigo-600" size={18} />
                                             <div>
-                                                <h3 className="text-white font-black text-lg tracking-tight flex items-center gap-2">
-                                                    Draft Queue
-                                                    <span className="bg-indigo-500 text-white text-xs px-2.5 py-0.5 rounded-full font-bold shadow-sm">{questions.length}</span>
-                                                </h3>
-                                                <p className="text-[10px] font-medium text-slate-400 uppercase tracking-widest mt-0.5">Ready for publication</p>
-                                                {isUpdatingExisting && (
-                                                    <p className="text-[10px] font-bold text-emerald-400 mt-1 flex items-center gap-1">
-                                                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse inline-block"></span>
-                                                        Appending to existing test — {questions.length} questions loaded
-                                                    </p>
-                                                )}
+                                                <h3 className="text-sm font-black text-slate-900 tracking-tight">Questions Queue</h3>
+                                                <p className="text-[10px] font-bold text-indigo-600 uppercase tracking-widest mt-0.5">Staged Drafts ({questions.length})</p>
                                             </div>
                                         </div>
-                                        <div className="flex gap-2 relative z-10">
-                                            <button onClick={() => setShowMergeModal(true)} className="p-2.5 bg-white/5 text-slate-300 rounded-xl hover:bg-white/10 hover:text-white transition-colors border border-white/5" title="Merge Tests"><Combine size={18} /></button>
-                                            <button onClick={() => setShowQuickMarkModal(true)} className="p-2.5 bg-white/5 text-emerald-400 rounded-xl hover:bg-emerald-500/20 hover:text-emerald-300 transition-colors border border-white/5" title="Quick Mark Answers"><CheckCircle size={18} /></button>
-                                            {questions.length > 0 && (
-                                                <button onClick={handleExportQueue} className="p-2.5 bg-white/5 text-blue-400 rounded-xl hover:bg-blue-500/20 hover:text-blue-300 transition-colors border border-white/5" title="Export CSV"><Download size={18} /></button>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    {/* Queue List */}
-                                    <div className="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar bg-slate-900/50">
-                                        {questions.length === 0 ? (
-                                            <div className="h-full flex flex-col items-center justify-center text-slate-500 space-y-4 opacity-60">
-                                                <div className="w-20 h-20 rounded-full border-2 border-dashed border-slate-700 flex items-center justify-center bg-slate-800/50 mb-2">
-                                                    <List size={32} className="text-slate-600" />
-                                                </div>
-                                                <p className="font-bold text-sm">Queue is empty</p>
-                                                <p className="text-xs text-center max-w-[200px]">Questions you add will appear here for review before publishing.</p>
-                                            </div>
-                                        ) : (
-                                            questions.map((q, idx) => (
-                                                <div key={q._id ? `${q._id}_${idx}` : idx} className="group relative bg-slate-800 border border-slate-700 rounded-2xl p-5 hover:border-indigo-500/50 transition-all shadow-sm hover:shadow-lg hover:shadow-indigo-500/10">
-                                                    <div className="absolute -top-3 -right-3 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                                                        <button onClick={() => moveQuestion(idx, 'up')} disabled={idx === 0} className="bg-slate-600 text-white p-2 rounded-xl shadow-lg hover:bg-slate-500 transition-transform hover:-translate-y-0.5 disabled:opacity-30" title="Move Up">▲</button>
-                                                        <button onClick={() => moveQuestion(idx, 'down')} disabled={idx === questions.length - 1} className="bg-slate-600 text-white p-2 rounded-xl shadow-lg hover:bg-slate-500 transition-transform hover:-translate-y-0.5 disabled:opacity-30" title="Move Down">▼</button>
-                                                        <button onClick={() => { setCurrentQuestion({ ...q }); removeQuestion(idx); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="bg-indigo-500 text-white p-2 rounded-xl shadow-lg hover:bg-indigo-600 transition-transform hover:-translate-y-0.5"><Edit3 size={14} /></button>
-                                                        <button onClick={() => removeQuestion(idx)} className="bg-rose-500 text-white p-2 rounded-xl shadow-lg hover:bg-rose-600 transition-transform hover:-translate-y-0.5"><Trash size={14} /></button>
-                                                    </div>
-
-                                                    <div className="flex items-center justify-between mb-3 border-b border-slate-700/50 pb-3">
-                                                        <div className="flex items-center gap-2">
-                                                            <span className="px-2 py-1 bg-slate-700 text-slate-300 text-[9px] font-black tracking-widest uppercase rounded-md border border-slate-600">Q{idx + 1}</span>
-                                                            <span className={`px-2 py-1 text-[9px] font-black tracking-widest uppercase rounded-md border ${q.type === 'mcq' ? 'bg-blue-500/10 border-blue-500/20 text-blue-400' : q.type === 'msq' ? 'bg-purple-500/10 border-purple-500/20 text-purple-400' : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'}`}>{q.type}</span>
-                                                            {q.section && <span className="px-2 py-1 text-[9px] font-black tracking-widest uppercase rounded-md border bg-amber-500/10 border-amber-500/20 text-amber-400">{q.section}</span>}
-                                                        </div>
-                                                        <div className="text-[10px] font-bold text-slate-400 flex items-center gap-1.5 bg-slate-900 px-2 py-1 rounded-md border border-slate-800">
-                                                            <span className="text-emerald-400">+{q.marks}</span> / <span className="text-rose-400">-{q.negativeMarks}</span>
-                                                        </div>
-                                                    </div>
-
-                                                    <div className="space-y-3">
-                                                        <div className="text-sm font-medium text-slate-200 line-clamp-3 leading-relaxed">
-                                                            <MathText text={q.text || 'No question text...'} />
-                                                        </div>
-
-                                                        {q.image && (
-                                                            <div className="inline-block relative rounded-lg overflow-hidden border border-slate-700 bg-slate-900 p-1 cursor-zoom-in group/img" onClick={() => setZoomedImg(q.image)}>
-                                                                <img src={q.image} alt="Thumb" className="h-16 w-auto object-contain rounded opacity-80 group-hover/img:opacity-100 transition-opacity" />
-                                                                <div className="absolute inset-0 bg-indigo-500/20 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm"><Eye size={16} className="text-white" /></div>
-                                                            </div>
-                                                        )}
-
-                                                        {/* Missing Answer Warning */}
-                                                        {((q.type === 'mcq' && !q.correctOption) || (q.type === 'msq' && (!q.correctOptions || q.correctOptions.length === 0)) || (q.type === 'integer' && (q.integerAnswer === undefined || q.integerAnswer === ''))) && (
-                                                            <div className="mt-3 flex items-start gap-2 text-[10px] font-bold text-rose-400 bg-rose-500/10 p-2.5 rounded-xl border border-rose-500/20">
-                                                                <AlertTriangle size={14} className="shrink-0 mt-0.5 hidden" />
-                                                                <span><AlertCircle size={12} className="inline mr-1 mb-0.5" />Missing Answer Key</span>
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            ))
+                                        {questions.length > 0 && (
+                                            <button 
+                                                onClick={handleExportQueue} 
+                                                className="text-[10px] bg-white hover:bg-slate-50 text-indigo-600 border border-slate-200 shadow-xs px-2.5 py-1.5 rounded-lg font-bold flex flex-row items-center gap-1 transition-all active:scale-95"
+                                                title="Export staged questions queue as CSV"
+                                            >
+                                                <Download size={12} /> CSV
+                                            </button>
                                         )}
                                     </div>
 
-                                    {/* Action Footer */}
-                                    <div className="p-6 bg-slate-900 border-t border-slate-800 shrink-0 relative z-20 shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
-                                        <button
-                                            onClick={handleSubmitTest}
-                                            disabled={loading || questions.length === 0}
-                                            className={`w-full relative group overflow-hidden py-4 rounded-2xl font-black text-white transition-all transform hover:-translate-y-1 active:scale-95 active:translate-y-0 flex items-center justify-center gap-3 ${loading || questions.length === 0 ? 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700' : isUpdatingExisting ? 'bg-gradient-to-br from-emerald-500 to-teal-600 shadow-xl shadow-emerald-500/20 hover:shadow-emerald-500/40' : 'bg-gradient-to-br from-indigo-500 to-blue-600 shadow-xl shadow-indigo-500/20 hover:shadow-indigo-500/40'}`}
-                                        >
-                                            {!(loading || questions.length === 0) && <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-in-out"></div>}
-                                            <div className="relative flex items-center gap-2">
-                                                {loading ? (
-                                                    <><Loader2 className="animate-spin text-indigo-400" size={20} /> <span className="text-slate-300">Processing...</span></>
-                                                ) : (
-                                                    <><Save size={20} /> {user?.adminLevel === 3 ? 'SAVE AS DRAFT' : (isUpdatingExisting ? 'SAVE CHANGES' : 'PUBLISH ASSESSMENT')}</>
-                                                )}
+                                    <div className="p-6 flex flex-col gap-4">
+                                        {questions.length === 0 ? (
+                                            <div className="text-center py-12 px-4 bg-slate-50/50 border border-dashed border-slate-200 rounded-2xl">
+                                                <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 mx-auto mb-3">
+                                                    <Info size={20} />
+                                                </div>
+                                                <h4 className="text-xs font-bold text-slate-800">Queue is empty</h4>
+                                                <p className="text-[10px] text-slate-400 font-medium leading-relaxed mt-1">Manual edits, PDF extractions or bulk uploads will show up staged here.</p>
                                             </div>
-                                        </button>
+                                        ) : (
+                                            <>
+                                                {/* Stats Summary Panel */}
+                                                <div className="grid grid-cols-2 gap-3 p-4 bg-indigo-50/40 border border-indigo-100/50 rounded-2xl">
+                                                    <div className="flex flex-col">
+                                                        <span className="text-[9px] font-black text-indigo-400 uppercase tracking-widest">Total Qs</span>
+                                                        <span className="text-lg font-black text-indigo-950 mt-0.5">{questions.length}</span>
+                                                    </div>
+                                                    <div className="flex flex-col">
+                                                        <span className="text-[9px] font-black text-indigo-400 uppercase tracking-widest">Total Marks</span>
+                                                        <span className="text-lg font-black text-indigo-950 mt-0.5">
+                                                            {questions.reduce((acc, q) => acc + Number(q.marks || 4), 0)}
+                                                        </span>
+                                                    </div>
+                                                </div>
 
-                                        {!isUpdatingExisting && questions.length > 0 && (
-                                            <p className="text-center text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-4">
-                                                {questions.length} question{questions.length !== 1 ? 's' : ''} ready for deployment
-                                            </p>
+                                                {/* Questions List */}
+                                                <div className="overflow-y-auto max-h-[50vh] space-y-3 pr-1 scrollbar-thin">
+                                                    <AnimatePresence initial={false}>
+                                                        {questions.map((q, idx) => (
+                                                            <motion.div
+                                                                key={q._id ? `${q._id}_${idx}` : idx}
+                                                                initial={{ opacity: 0, y: 10 }}
+                                                                animate={{ opacity: 1, y: 0 }}
+                                                                exit={{ opacity: 0, scale: 0.95 }}
+                                                                transition={{ type: "spring", duration: 0.3 }}
+                                                                className="group/qcard border border-slate-200/80 rounded-2xl bg-white p-4 relative shadow-xs hover:border-indigo-200 hover:shadow-sm transition-all"
+                                                            >
+                                                                {/* Controls overlay */}
+                                                                <div className="absolute top-3 right-3 flex items-center gap-1 opacity-0 group-hover/qcard:opacity-100 transition-opacity">
+                                                                    <button
+                                                                        onClick={() => {
+                                                                            if (idx === 0) return;
+                                                                            const newQs = [...questions];
+                                                                            [newQs[idx - 1], newQs[idx]] = [newQs[idx], newQs[idx - 1]];
+                                                                            setQuestions(newQs);
+                                                                        }}
+                                                                        disabled={idx === 0}
+                                                                        className="p-1 hover:bg-slate-100 text-slate-400 hover:text-indigo-600 rounded-lg disabled:opacity-30 transition-colors"
+                                                                        title="Move Up"
+                                                                    >
+                                                                        <ChevronUp size={14} />
+                                                                    </button>
+                                                                    <button
+                                                                        onClick={() => {
+                                                                            if (idx === questions.length - 1) return;
+                                                                            const newQs = [...questions];
+                                                                            [newQs[idx + 1], newQs[idx]] = [newQs[idx], newQs[idx + 1]];
+                                                                            setQuestions(newQs);
+                                                                        }}
+                                                                        disabled={idx === questions.length - 1}
+                                                                        className="p-1 hover:bg-slate-100 text-slate-400 hover:text-indigo-600 rounded-lg disabled:opacity-30 transition-colors"
+                                                                        title="Move Down"
+                                                                    >
+                                                                        <ChevronDown size={14} />
+                                                                    </button>
+                                                                    <button
+                                                                        onClick={() => {
+                                                                            // Edit: load into currentQuestion state
+                                                                            setCurrentQuestion({
+                                                                                type: q.type || 'mcq',
+                                                                                marks: Number(q.marks) || 4,
+                                                                                negativeMarks: q.negativeMarks !== undefined ? Number(q.negativeMarks) : 0,
+                                                                                topic: q.topic || '',
+                                                                                section: q.section || '',
+                                                                                text: q.text || '',
+                                                                                image: q.image || '',
+                                                                                options: q.options || ['', '', '', ''],
+                                                                                optionImages: q.optionImages || ['', '', '', ''],
+                                                                                correctOption: q.correctOption || '',
+                                                                                correctOptions: q.correctOptions || [],
+                                                                                integerAnswer: q.integerAnswer || '',
+                                                                                solution: q.solution || '',
+                                                                                solutionImages: q.solutionImages || [],
+                                                                                subject: q.subject || 'Physics'
+                                                                            });
+                                                                            // Scroll to manual uploader top smoothly
+                                                                            document.getElementById('question-authoring-studio')?.scrollIntoView({ behavior: 'smooth' });
+                                                                            // Remove from current queue index
+                                                                            const newQs = questions.filter((_, i) => i !== idx);
+                                                                            setQuestions(newQs);
+                                                                        }}
+                                                                        className="p-1 hover:bg-slate-100 text-slate-400 hover:text-amber-600 rounded-lg transition-colors"
+                                                                        title="Load into Editor"
+                                                                    >
+                                                                        <Edit2 size={14} />
+                                                                    </button>
+                                                                    <button
+                                                                        onClick={() => {
+                                                                            const newQs = questions.filter((_, i) => i !== idx);
+                                                                            setQuestions(newQs);
+                                                                        }}
+                                                                        className="p-1 hover:bg-rose-50 text-slate-400 hover:text-rose-600 rounded-lg transition-colors"
+                                                                        title="Delete staged question"
+                                                                    >
+                                                                        <Trash size={14} />
+                                                                    </button>
+                                                                </div>
+
+                                                                {/* Index Badge and Tags */}
+                                                                <div className="flex items-center gap-2 mb-2">
+                                                                    <span className="bg-slate-900 text-white text-[10px] font-black w-5 h-5 rounded-lg flex items-center justify-center shrink-0">
+                                                                        {idx + 1}
+                                                                    </span>
+                                                                    <span className={`text-[9px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider ${q.type === 'integer' ? 'bg-amber-50 border border-amber-100 text-amber-700' : q.type === 'msq' ? 'bg-purple-50 border border-purple-100 text-purple-700' : 'bg-indigo-50 border border-indigo-100 text-indigo-700'}`}>
+                                                                        {q.type?.toUpperCase() || 'MCQ'}
+                                                                    </span>
+                                                                    <span className="text-[9px] font-extrabold text-slate-400 bg-slate-50 border border-slate-100 px-2 py-0.5 rounded-md truncate max-w-[80px]">
+                                                                        {q.subject || 'Physics'}
+                                                                    </span>
+                                                                </div>
+
+                                                                {/* Question Preview text */}
+                                                                <div className="flex gap-2 items-start mt-2">
+                                                                    <div className="text-[11px] leading-relaxed text-slate-600 font-medium line-clamp-3 flex-1 overflow-x-auto">
+                                                                        <MathText text={q.text || 'Question body empty.'} />
+                                                                    </div>
+                                                                    {q.image && (
+                                                                        <img
+                                                                            src={q.image}
+                                                                            alt="Preview Thumbnail"
+                                                                            className="w-10 h-10 object-contain rounded-lg border border-slate-200 bg-slate-50 cursor-zoom-in hover:scale-105 transition-transform"
+                                                                            onClick={() => setZoomedImg(q.image)}
+                                                                        />
+                                                                    )}
+                                                                </div>
+
+                                                                {/* Correct Answer Display */}
+                                                                <div className="mt-3 pt-2.5 border-t border-slate-100 flex justify-between items-center text-[10px] font-extrabold">
+                                                                    <span className="text-slate-400 uppercase tracking-widest">Key:</span>
+                                                                    <span className="text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100/50">
+                                                                        {q.type === 'integer' ? q.integerAnswer : q.type === 'msq' ? (Array.isArray(q.correctOptions) ? q.correctOptions.join(', ') : q.correctOptions || '-') : q.correctOption || '-'}
+                                                                    </span>
+                                                                </div>
+                                                            </motion.div>
+                                                        ))}
+                                                    </AnimatePresence>
+                                                </div>
+
+                                                {/* Clear Queue Footer */}
+                                                <button
+                                                    onClick={() => {
+                                                        if (confirm("Are you sure you want to clear the entire questions queue? All unsaved staged draft progress will be lost.")) {
+                                                            setQuestions([]);
+                                                        }
+                                                    }}
+                                                    className="w-full text-center text-xs font-black text-rose-500 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-100 py-3 rounded-2xl transition-all flex items-center justify-center gap-1.5 mt-2 active:scale-95"
+                                                >
+                                                    <Trash size={13} /> Clear All Draft Questions
+                                                </button>
+                                            </>
                                         )}
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            )}
+                )}
             {/* Edit Series Modal */}
             {
                 editingSeries && (
@@ -4658,7 +4866,13 @@ export default function AdminDashboard() {
             {
                 editingTest && (
                     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[60] p-4">
-                        <div className="bg-white rounded-lg p-6 w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+                        <motion.div 
+                            initial={{ opacity: 0, scale: 0.93 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.93 }}
+                            transition={{ type: "spring", duration: 0.4 }}
+                            className="bg-white rounded-lg p-6 w-full max-w-3xl max-h-[90vh] overflow-y-auto shadow-2xl"
+                        >
                             <div className="flex justify-between items-center mb-6">
                                 <h3 className="text-xl font-bold">Edit Test: {editingTest.title}</h3>
                                 <button onClick={() => setEditingTest(null)}><X size={24} className="text-gray-500 hover:text-gray-800" /></button>
@@ -4896,7 +5110,7 @@ export default function AdminDashboard() {
                                     <button type="submit" className="px-4 py-2 bg-blue-600 text-white font-bold rounded-md hover:bg-blue-700">Save Changes</button>
                                 </div>
                             </form>
-                        </div>
+                        </motion.div>
                     </div>
                 )
             }
@@ -4909,7 +5123,13 @@ export default function AdminDashboard() {
             {
                 splittingTest && (
                     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[60] p-4">
-                        <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-2xl">
+                        <motion.div 
+                            initial={{ opacity: 0, scale: 0.93 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.93 }}
+                            transition={{ type: "spring", duration: 0.4 }}
+                            className="bg-white rounded-lg p-6 w-full max-w-md shadow-2xl"
+                        >
                             <div className="flex justify-between items-center mb-4">
                                 <h3 className="text-xl font-bold text-gray-800">Split by Subject</h3>
                                 <button onClick={() => setSplittingTest(null)}><X size={24} className="text-gray-400 hover:text-gray-600" /></button>
@@ -4988,7 +5208,7 @@ export default function AdminDashboard() {
                                 </button>
                                 <button onClick={() => setSplittingTest(null)} className="text-gray-500 text-sm font-bold">Cancel</button>
                             </div>
-                        </div>
+                        </motion.div>
                     </div>
                 )
             }
@@ -5136,343 +5356,354 @@ export default function AdminDashboard() {
             {/* Quick Marking Modal (Now Full Screen) */}
             {
                 showQuickMarkModal && (
-                    <div className="fixed inset-0 bg-white z-[70] flex flex-col overflow-hidden animate-in fade-in duration-200">
-                        <div className="p-4 sm:p-6 border-b flex justify-between items-center bg-gray-50 shadow-sm shrink-0">
-                            <div>
-                                <h3 className="text-2xl font-black text-gray-800 flex items-center gap-3">
-                                    <Edit2 className="text-blue-600" size={28} />
-                                    Full-Page Test Editor & Marking Grid
-                                </h3>
-                                <p className="text-sm text-gray-500 font-bold mt-1">Edit questions, change types, and mark answers all in one place.</p>
+                    <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-md z-[70] flex items-center justify-center p-4">
+                        <motion.div 
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            transition={{ type: "spring", duration: 0.4 }}
+                            className="bg-white w-full h-[92vh] max-w-7xl rounded-[32px] shadow-2xl flex flex-col overflow-hidden border border-slate-200/60 animate-in zoom-in-95 duration-200"
+                        >
+                            <div className="p-6 border-b border-slate-200/60 flex justify-between items-center bg-slate-50/50 shadow-sm shrink-0">
+                                <div>
+                                    <h3 className="text-xl sm:text-2xl font-black text-slate-800 flex items-center gap-3">
+                                        <Edit3 className="text-indigo-600" size={28} />
+                                        Full-Page Test Editor & Marking Grid
+                                    </h3>
+                                    <p className="text-xs sm:text-sm text-slate-500 font-bold mt-1">Review questions, upload option diagrams, and bulk-fill keys instantly.</p>
+                                </div>
+                                <button onClick={() => setShowQuickMarkModal(false)} className="p-3 bg-white border border-slate-200/60 shadow-xs hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 rounded-2xl transition-all text-slate-400 flex items-center gap-2 font-bold text-xs sm:text-sm">
+                                    <X size={18} /> Close Editor
+                                </button>
                             </div>
-                            <button onClick={() => setShowQuickMarkModal(false)} className="p-3 bg-white border shadow-sm hover:bg-red-50 hover:text-red-600 hover:border-red-200 rounded-xl transition-all text-gray-400 flex items-center gap-2 font-bold">
-                                <X size={20} /> Close Editor
-                            </button>
-                        </div>
 
-                        <div className="flex-1 overflow-hidden flex flex-col sm:flex-row">
-                            {/* Sequential Grid */}
-                            <div className="flex-1 overflow-y-auto p-4 border-r bg-white">
-                                <table className="w-full text-left border-collapse">
-                                    <thead className="sticky top-0 bg-gray-100 z-10 shadow-sm">
-                                        <tr>
-                                            <th className="p-3 text-xs font-black uppercase text-gray-500 border w-[60px] text-center">#</th>
-                                            <th className="p-3 text-xs font-black uppercase text-gray-500 border w-1/2">Question & Options</th>
-                                            <th className="p-3 text-xs font-black uppercase text-gray-500 border w-[130px]">Subject / Section</th>
-                                            <th className="p-3 text-xs font-black uppercase text-gray-500 border w-[120px]">Type</th>
-                                            <th className="p-3 text-xs font-black uppercase text-gray-500 border w-[200px]">Answer</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {questions.map((q, idx) => (
-                                            <tr key={q._id ? `${q._id}_${idx}` : idx} className="hover:bg-blue-50/30 transition-colors">
-                                                <td className="p-3 border text-center bg-gray-50/50">
-                                                    <div className="flex flex-col items-center gap-1">
-                                                        <span className="font-black text-lg text-gray-700">{idx + 1}</span>
-                                                        <div className="flex gap-1">
-                                                            <button
-                                                                onClick={() => {
-                                                                    if (idx === 0) return;
-                                                                    const newQs = [...questions];
-                                                                    [newQs[idx - 1], newQs[idx]] = [newQs[idx], newQs[idx - 1]];
-                                                                    setQuestions(newQs);
-                                                                }}
-                                                                disabled={idx === 0}
-                                                                className="p-1 hover:bg-gray-200 rounded disabled:opacity-30 disabled:cursor-not-allowed"
-                                                            ><ChevronUp size={16} /></button>
-                                                            <button
-                                                                onClick={() => {
-                                                                    if (idx === questions.length - 1) return;
-                                                                    const newQs = [...questions];
-                                                                    [newQs[idx + 1], newQs[idx]] = [newQs[idx], newQs[idx + 1]];
-                                                                    setQuestions(newQs);
-                                                                }}
-                                                                disabled={idx === questions.length - 1}
-                                                                className="p-1 hover:bg-gray-200 rounded disabled:opacity-30 disabled:cursor-not-allowed"
-                                                            ><ChevronDown size={16} /></button>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td className="p-3 border">
-                                                    <div className="flex flex-col gap-3">
-                                                        {/* Question Visual & Edit */}
-                                                        <div className="flex flex-col gap-2 bg-gray-50 p-2 rounded border border-gray-200">
-                                                            <div className="flex justify-between items-center">
-                                                                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Question Content</span>
-                                                                <label className="text-[10px] bg-white border px-2 py-0.5 rounded cursor-pointer hover:bg-gray-100 flex items-center gap-1">
-                                                                    <Upload size={10} /> {q.image ? 'Change Img' : 'Upload Img'}
-                                                                    <input type="file" className="hidden" onChange={(e) => {
-                                                                        const file = e.target.files[0];
-                                                                        if (file) uploadImage(file, 'grid-q', idx);
-                                                                    }} />
-                                                                </label>
+                            <div className="flex-1 overflow-hidden flex flex-col lg:flex-row bg-slate-50/30">
+                                {/* Sequential Grid */}
+                                <div className="flex-1 overflow-y-auto p-6 bg-white">
+                                    <table className="w-full text-left border-separate border-spacing-y-4">
+                                        <thead className="sticky top-0 bg-white/95 backdrop-blur-sm z-20 shadow-xs">
+                                            <tr>
+                                                <th className="p-4 text-xs font-black uppercase text-slate-400 tracking-wider w-[70px] text-center bg-slate-50 rounded-l-2xl border-l border-y border-slate-200/30">#</th>
+                                                <th className="p-4 text-xs font-black uppercase text-slate-400 tracking-wider w-1/2 bg-slate-50 border-y border-slate-200/30">Question & Options</th>
+                                                <th className="p-4 text-xs font-black uppercase text-slate-400 tracking-wider w-[140px] bg-slate-50 border-y border-slate-200/30">Subject & Section</th>
+                                                <th className="p-4 text-xs font-black uppercase text-slate-400 tracking-wider w-[130px] bg-slate-50 border-y border-slate-200/30">Type</th>
+                                                <th className="p-4 text-xs font-black uppercase text-slate-400 tracking-wider w-[220px] bg-slate-50 rounded-r-2xl border-r border-y border-slate-200/30">Correct Answer</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {questions.map((q, idx) => (
+                                                <tr key={q._id ? `${q._id}_${idx}` : idx} className="hover:shadow-md transition-all duration-200 bg-white/40 hover:bg-slate-50/20 group/row hover:-translate-y-0.5">
+                                                    <td className="p-4 text-center bg-slate-50/50 rounded-l-3xl border-l border-y border-slate-200/60">
+                                                        <div className="flex flex-col items-center gap-1">
+                                                            <span className="font-black text-lg text-slate-700">{idx + 1}</span>
+                                                            <div className="flex gap-1">
+                                                                <button
+                                                                    onClick={() => {
+                                                                        if (idx === 0) return;
+                                                                        const newQs = [...questions];
+                                                                        [newQs[idx - 1], newQs[idx]] = [newQs[idx], newQs[idx - 1]];
+                                                                        setQuestions(newQs);
+                                                                    }}
+                                                                    disabled={idx === 0}
+                                                                    className="p-1.5 hover:bg-indigo-50 hover:text-indigo-600 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                                                                ><ChevronUp size={16} /></button>
+                                                                <button
+                                                                    onClick={() => {
+                                                                        if (idx === questions.length - 1) return;
+                                                                        const newQs = [...questions];
+                                                                        [newQs[idx + 1], newQs[idx]] = [newQs[idx], newQs[idx + 1]];
+                                                                        setQuestions(newQs);
+                                                                    }}
+                                                                    disabled={idx === questions.length - 1}
+                                                                    className="p-1.5 hover:bg-indigo-50 hover:text-indigo-600 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                                                                ><ChevronDown size={16} /></button>
                                                             </div>
-                                                            <div className="flex gap-3 items-start">
-                                                                {q.image && (
-                                                                    <div className="relative group shrink-0">
-                                                                        <img src={q.image} alt="Q" className="w-20 h-20 object-contain rounded border bg-white cursor-zoom-in hover:scale-105 transition-transform" onClick={() => setZoomedImg(q.image)} />
-                                                                        <button onClick={() => { const newQs = [...questions]; newQs[idx].image = ''; setQuestions(newQs); }} className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100"><X size={12} /></button>
-                                                                    </div>
-                                                                )}
-                                                                <div className="flex flex-col gap-2 flex-1 min-w-0">
-                                                                    {q.text && (
-                                                                        <div className="text-xs leading-relaxed text-gray-700 bg-white p-2 border rounded max-h-[100px] overflow-y-auto shadow-sm">
-                                                                            <MathText text={q.text} />
+                                                        </div>
+                                                    </td>
+                                                    <td className="p-4 border-y border-slate-200/60">
+                                                        <div className="flex flex-col gap-3">
+                                                            {/* Question Visual & Edit */}
+                                                            <div className="flex flex-col gap-3 bg-slate-50/60 border border-slate-200/60 p-4 rounded-2xl">
+                                                                <div className="flex justify-between items-center">
+                                                                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Question Segment</span>
+                                                                    <label className="text-[10px] bg-white border border-slate-200 shadow-sm px-2.5 py-1 rounded-lg cursor-pointer hover:bg-indigo-50 hover:text-indigo-650 hover:border-indigo-200 flex items-center gap-1 font-bold transition-all">
+                                                                        <Upload size={10} /> {q.image ? 'Swap Diagram' : 'Attach Diagram'}
+                                                                        <input type="file" className="hidden" onChange={(e) => {
+                                                                            const file = e.target.files[0];
+                                                                            if (file) uploadImage(file, 'grid-q', idx);
+                                                                        }} />
+                                                                    </label>
+                                                                </div>
+                                                                <div className="flex gap-3 items-start">
+                                                                    {q.image && (
+                                                                        <div className="relative group shrink-0">
+                                                                            <img src={q.image} alt="Q" className="w-20 h-20 object-contain rounded-xl border border-slate-200 bg-white cursor-zoom-in hover:scale-105 transition-transform duration-200 shadow-sm" onClick={() => setZoomedImg(q.image)} />
+                                                                            <button onClick={() => { const newQs = [...questions]; newQs[idx].image = ''; setQuestions(newQs); }} className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100"><X size={12} /></button>
                                                                         </div>
                                                                     )}
-                                                                    <textarea
-                                                                        className="w-full text-xs p-2 border hover:border-indigo-300 focus:border-indigo-600 rounded bg-white focus:ring-2 focus:ring-indigo-100 transition-all outline-none resize-y min-h-[60px] font-mono shadow-inner"
-                                                                        value={q.text || ''}
-                                                                        placeholder="Type or paste question text (LaTeX supported)..."
-                                                                        onChange={(e) => {
-                                                                            const newQs = [...questions];
-                                                                            newQs[idx].text = e.target.value;
-                                                                            setQuestions(newQs);
-                                                                        }}
-                                                                    />
+                                                                    <div className="flex flex-col gap-2 flex-1 min-w-0">
+                                                                        {q.text && (
+                                                                            <div className="text-xs leading-relaxed text-slate-700 bg-white p-3 border border-slate-200 rounded-xl max-h-[120px] overflow-y-auto shadow-xs">
+                                                                                <MathText text={q.text} />
+                                                                            </div>
+                                                                        )}
+                                                                        <textarea
+                                                                            className="w-full text-xs p-3 border border-slate-200/80 hover:border-indigo-300 focus:border-indigo-500 rounded-xl bg-white focus:ring-4 focus:ring-indigo-500/10 transition-all outline-none resize-y min-h-[70px] font-mono shadow-xs"
+                                                                            value={q.text || ''}
+                                                                            placeholder="Type or paste question text (LaTeX supported)..."
+                                                                            onChange={(e) => {
+                                                                                const newQs = [...questions];
+                                                                                newQs[idx].text = e.target.value;
+                                                                                setQuestions(newQs);
+                                                                            }}
+                                                                        />
+                                                                    </div>
                                                                 </div>
                                                             </div>
-                                                        </div>
 
-                                                        {/* Option Visuals */}
-                                                        {q.type !== 'integer' && (
-                                                            <div className="flex flex-col gap-1 b border p-2 bg-white rounded">
-                                                                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Options</span>
-                                                                <div className="grid grid-cols-1 xl:grid-cols-2 gap-3">
-                                                                    {[0, 1, 2, 3].map((optIdx) => (
-                                                                        <div key={optIdx} className="flex flex-col gap-2 border border-gray-200 p-2 rounded bg-white relative group/optbox shadow-sm hover:border-indigo-300 transition-colors">
-                                                                            <span className="absolute -top-2 -left-2 bg-gray-900 text-white text-[10px] font-black px-2 py-0.5 rounded shadow-sm z-10">{String.fromCharCode(65 + optIdx)}</span>
+                                                            {/* Option Visuals */}
+                                                            {q.type !== 'integer' && (
+                                                                <div className="flex flex-col gap-1 border border-slate-100 p-3 bg-white/50 rounded-2xl mt-1">
+                                                                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Options Matrix</span>
+                                                                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+                                                                        {[0, 1, 2, 3].map((optIdx) => (
+                                                                            <div key={optIdx} className="flex flex-col gap-2 border border-slate-200/80 p-3 rounded-2xl bg-white relative group/optbox shadow-xs hover:border-indigo-300 hover:shadow-sm transition-all">
+                                                                                <span className="absolute -top-2.5 -left-2.5 bg-slate-900 text-white text-[9px] font-black px-2.5 py-1 rounded-lg shadow-sm z-10">{String.fromCharCode(65 + optIdx)}</span>
 
-                                                                            {/* Image Controls */}
-                                                                            <div className="flex justify-end gap-2 px-1 absolute top-1 right-1 z-10">
-                                                                                <label className="text-[10px] font-bold text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded cursor-pointer hover:bg-indigo-100 opacity-0 group-hover/optbox:opacity-100 transition-opacity">
-                                                                                    {q.optionImages?.[optIdx] ? 'Swap Img' : '+ Img'}
-                                                                                    <input type="file" className="hidden" onChange={(e) => {
-                                                                                        const file = e.target.files[0];
-                                                                                        if (file) uploadImage(file, 'grid-opt', { qIdx: idx, oIdx: optIdx });
-                                                                                    }} />
-                                                                                </label>
-                                                                                {q.optionImages?.[optIdx] && (
-                                                                                    <button onClick={() => { const newQs = [...questions]; newQs[idx].optionImages[optIdx] = ''; setQuestions(newQs); }} className="text-[10px] font-bold text-red-600 bg-red-50 px-1.5 py-0.5 rounded hover:bg-red-100 opacity-0 group-hover/optbox:opacity-100 transition-opacity">Del Img</button>
-                                                                                )}
-                                                                            </div>
-
-                                                                            <div className="flex gap-2 items-start mt-4">
-                                                                                {q.optionImages?.[optIdx] && (
-                                                                                    <img src={q.optionImages[optIdx]} alt={`O${optIdx}`} className="h-16 w-16 object-contain rounded border cursor-zoom-in shrink-0" onClick={() => setZoomedImg(q.optionImages[optIdx])} />
-                                                                                )}
-                                                                                <div className="flex flex-col gap-1 flex-1 min-w-0">
-                                                                                    {q.options?.[optIdx] && (
-                                                                                        <div className="text-[11px] leading-tight text-gray-700 bg-gray-50 p-1.5 rounded border border-gray-100 overflow-x-auto">
-                                                                                            <MathText text={q.options[optIdx]} />
-                                                                                        </div>
+                                                                                {/* Image Controls */}
+                                                                                <div className="flex justify-end gap-2 px-1 absolute top-2 right-2 z-10">
+                                                                                    <label className="text-[9px] font-bold text-indigo-650 bg-indigo-50 border border-indigo-100 px-2 py-1 rounded-md cursor-pointer hover:bg-indigo-100 opacity-0 group-hover/optbox:opacity-100 transition-opacity">
+                                                                                        {q.optionImages?.[optIdx] ? 'Swap Img' : '+ Img'}
+                                                                                        <input type="file" className="hidden" onChange={(e) => {
+                                                                                            const file = e.target.files[0];
+                                                                                            if (file) uploadImage(file, 'grid-opt', { qIdx: idx, oIdx: optIdx });
+                                                                                        }} />
+                                                                                    </label>
+                                                                                    {q.optionImages?.[optIdx] && (
+                                                                                        <button onClick={() => { const newQs = [...questions]; newQs[idx].optionImages[optIdx] = ''; setQuestions(newQs); }} className="text-[9px] font-bold text-rose-650 bg-rose-50 border border-rose-100 px-2 py-1 rounded-md hover:bg-rose-100 opacity-0 group-hover/optbox:opacity-100 transition-opacity">Del Img</button>
                                                                                     )}
-                                                                                    <textarea
-                                                                                        className="w-full text-[11px] p-1.5 border hover:border-indigo-300 focus:border-indigo-600 rounded bg-white outline-none resize-y min-h-[40px] font-mono"
-                                                                                        placeholder="Option text..."
-                                                                                        value={q.options?.[optIdx] || ''}
-                                                                                        onChange={(e) => {
-                                                                                            const newQs = [...questions];
-                                                                                            if (!newQs[idx].options) newQs[idx].options = ['', '', '', ''];
-                                                                                            newQs[idx].options[optIdx] = e.target.value;
-                                                                                            setQuestions(newQs);
-                                                                                        }}
-                                                                                    />
+                                                                                </div>
+
+                                                                                <div className="flex gap-2 items-start mt-4">
+                                                                                    {q.optionImages?.[optIdx] && (
+                                                                                        <img src={q.optionImages[optIdx]} alt={`O${optIdx}`} className="h-16 w-16 object-contain rounded-lg border cursor-zoom-in shrink-0" onClick={() => setZoomedImg(q.optionImages[optIdx])} />
+                                                                                    )}
+                                                                                    <div className="flex flex-col gap-1.5 flex-1 min-w-0">
+                                                                                        {q.options?.[optIdx] && (
+                                                                                            <div className="text-[11px] leading-tight text-slate-700 bg-slate-50 p-2 rounded-lg border border-slate-100 overflow-x-auto">
+                                                                                                <MathText text={q.options[optIdx]} />
+                                                                                            </div>
+                                                                                        )}
+                                                                                        <textarea
+                                                                                            className="w-full text-[11px] p-2 border border-slate-200 hover:border-indigo-300 focus:border-indigo-500 rounded-lg bg-white outline-none resize-y min-h-[45px] font-mono transition-all"
+                                                                                            placeholder="Option text..."
+                                                                                            value={q.options?.[optIdx] || ''}
+                                                                                            onChange={(e) => {
+                                                                                                const newQs = [...questions];
+                                                                                                if (!newQs[idx].options) newQs[idx].options = ['', '', '', ''];
+                                                                                                newQs[idx].options[optIdx] = e.target.value;
+                                                                                                setQuestions(newQs);
+                                                                                            }}
+                                                                                        />
+                                                                                    </div>
                                                                                 </div>
                                                                             </div>
-                                                                        </div>
-                                                                    ))}
+                                                                        ))}
+                                                                    </div>
                                                                 </div>
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                </td>
-                                                <td className="p-3 border align-top pt-4">
-                                                    <div className="flex flex-col gap-1.5">
-                                                        <input
-                                                            type="text"
-                                                            placeholder="Subject"
-                                                            className="w-full text-xs p-1.5 border rounded outline-none focus:border-indigo-400 bg-gray-50"
-                                                            value={q.subject || ''}
-                                                            onChange={(e) => { const newQs = [...questions]; newQs[idx].subject = e.target.value; setQuestions(newQs); }}
-                                                        />
-                                                        <input
-                                                            type="text"
-                                                            placeholder="Section (opt.)"
-                                                            className="w-full text-xs p-1.5 border rounded outline-none focus:border-amber-400 bg-amber-50"
-                                                            value={q.section || ''}
-                                                            onChange={(e) => { const newQs = [...questions]; newQs[idx].section = e.target.value; setQuestions(newQs); }}
-                                                        />
-                                                    </div>
-                                                </td>
-                                                <td className="p-3 border text-center align-top pt-4">
-                                                    <select
-                                                        className={`w-full text-xs font-bold p-1.5 rounded outline-none border cursor-pointer ${q.type === 'integer' ? 'bg-amber-50 border-amber-200 text-amber-700' : q.type === 'msq' ? 'bg-purple-50 border-purple-200 text-purple-700' : 'bg-blue-50 border-blue-200 text-blue-700'}`}
-                                                        value={q.type}
-                                                        onChange={(e) => {
-                                                            const newQs = [...questions];
-                                                            newQs[idx].type = e.target.value;
-                                                            // Reset answers on type change to prevent invalid states
-                                                            newQs[idx].correctOption = '';
-                                                            newQs[idx].correctOptions = [];
-                                                            newQs[idx].integerAnswer = '';
-                                                            setQuestions(newQs);
-                                                        }}
-                                                    >
-                                                        <option value="mcq">MCQ</option>
-                                                        <option value="msq">MSQ</option>
-                                                        <option value="integer">INTEGER</option>
-                                                    </select>
-                                                </td>
-                                                <td className="p-3 border align-top pt-4">
-                                                    {q.type === 'integer' ? (
-                                                        <input
-                                                            type="text"
-                                                            placeholder="Inter value..."
-                                                            className="w-full p-1.5 text-sm border-2 border-gray-200 rounded focus:border-blue-500 outline-none font-bold"
-                                                            value={q.integerAnswer || ''}
+                                                            )}
+                                                        </div>
+                                                    </td>
+                                                    <td className="p-4 border-y border-slate-200/60 align-top pt-5">
+                                                        <div className="flex flex-col gap-2">
+                                                            <input
+                                                                type="text"
+                                                                placeholder="Subject"
+                                                                className="w-full text-xs p-2 border border-slate-200 rounded-xl outline-none focus:border-indigo-400 bg-slate-50 focus:bg-white transition-all font-bold text-slate-700"
+                                                                value={q.subject || ''}
+                                                                onChange={(e) => { const newQs = [...questions]; newQs[idx].subject = e.target.value; setQuestions(newQs); }}
+                                                            />
+                                                            <input
+                                                                type="text"
+                                                                placeholder="Section (opt.)"
+                                                                className="w-full text-xs p-2 border border-amber-250/60 rounded-xl outline-none focus:border-amber-400 bg-amber-50/50 focus:bg-white transition-all font-bold text-amber-800"
+                                                                value={q.section || ''}
+                                                                onChange={(e) => { const newQs = [...questions]; newQs[idx].section = e.target.value; setQuestions(newQs); }}
+                                                            />
+                                                        </div>
+                                                    </td>
+                                                    <td className="p-4 border-y border-slate-200/60 text-center align-top pt-5">
+                                                        <select
+                                                            className={`w-full text-xs font-black p-2 rounded-xl outline-none border cursor-pointer transition-all ${q.type === 'integer' ? 'bg-amber-50 border-amber-200 text-amber-700 hover:bg-amber-100/50' : q.type === 'msq' ? 'bg-purple-50 border-purple-200 text-purple-700 hover:bg-purple-100/50' : 'bg-indigo-50 border-indigo-200 text-indigo-700 hover:bg-indigo-100/50'}`}
+                                                            value={q.type}
                                                             onChange={(e) => {
                                                                 const newQs = [...questions];
-                                                                newQs[idx].integerAnswer = e.target.value;
+                                                                newQs[idx].type = e.target.value;
+                                                                // Reset answers on type change to prevent invalid states
+                                                                newQs[idx].correctOption = '';
+                                                                newQs[idx].correctOptions = [];
+                                                                newQs[idx].integerAnswer = '';
                                                                 setQuestions(newQs);
                                                             }}
-                                                        />
-                                                    ) : q.type === 'msq' ? (
-                                                        <div className="flex gap-1">
-                                                            {['A', 'B', 'C', 'D'].map(opt => {
-                                                                const isSelected = (q.correctOptions || []).includes(opt);
-                                                                return (
+                                                        >
+                                                            <option value="mcq">MCQ</option>
+                                                            <option value="msq">MSQ</option>
+                                                            <option value="integer">INTEGER</option>
+                                                        </select>
+                                                    </td>
+                                                    <td className="p-4 border-r border-y border-slate-200/60 rounded-r-3xl align-top pt-5">
+                                                        {q.type === 'integer' ? (
+                                                            <input
+                                                                type="text"
+                                                                placeholder="Enter value..."
+                                                                className="w-full p-2 text-sm border-2 border-slate-200 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none font-black text-slate-800 transition-all text-center shadow-xs bg-slate-50/30 focus:bg-white"
+                                                                value={q.integerAnswer || ''}
+                                                                onChange={(e) => {
+                                                                    const newQs = [...questions];
+                                                                    newQs[idx].integerAnswer = e.target.value;
+                                                                    setQuestions(newQs);
+                                                                }}
+                                                            />
+                                                        ) : q.type === 'msq' ? (
+                                                            <div className="flex gap-1.5 justify-center">
+                                                                {['A', 'B', 'C', 'D'].map(opt => {
+                                                                    const isSelected = (q.correctOptions || []).includes(opt);
+                                                                    return (
+                                                                        <button
+                                                                            key={opt}
+                                                                            onClick={() => {
+                                                                                const newQs = [...questions];
+                                                                                const currentOpts = q.correctOptions || [];
+                                                                                newQs[idx].correctOptions = isSelected
+                                                                                    ? currentOpts.filter(o => o !== opt)
+                                                                                    : [...currentOpts, opt].sort();
+                                                                                setQuestions(newQs);
+                                                                            }}
+                                                                            className={`w-9 h-9 rounded-xl font-black text-xs border-2 transition-all transform active:scale-95 ${isSelected ? 'bg-purple-600 border-purple-600 text-white shadow-md shadow-purple-500/20 scale-105' : 'bg-white border-slate-200 text-slate-400 hover:border-purple-300 hover:text-purple-600'}`}
+                                                                        >
+                                                                            {opt}
+                                                                        </button>
+                                                                    );
+                                                                })}
+                                                            </div>
+                                                        ) : (
+                                                            <div className="flex gap-1.5 justify-center">
+                                                                {['A', 'B', 'C', 'D'].map(opt => (
                                                                     <button
                                                                         key={opt}
                                                                         onClick={() => {
                                                                             const newQs = [...questions];
-                                                                            const currentOpts = q.correctOptions || [];
-                                                                            newQs[idx].correctOptions = isSelected
-                                                                                ? currentOpts.filter(o => o !== opt)
-                                                                                : [...currentOpts, opt].sort();
+                                                                            newQs[idx].correctOption = opt;
                                                                             setQuestions(newQs);
                                                                         }}
-                                                                        className={`w-8 h-8 rounded font-black text-xs border-2 transition-all ${isSelected ? 'bg-purple-600 border-purple-600 text-white shadow-md scale-110' : 'bg-white border-gray-200 text-gray-400 hover:border-purple-300'}`}
+                                                                        className={`w-9 h-9 rounded-xl font-black text-xs border-2 transition-all transform active:scale-95 ${q.correctOption === opt ? 'bg-indigo-600 border-indigo-600 text-white shadow-md shadow-indigo-500/20 scale-105' : 'bg-white border-slate-200 text-slate-400 hover:border-indigo-300 hover:text-indigo-655'}`}
                                                                     >
                                                                         {opt}
                                                                     </button>
-                                                                );
-                                                            })}
-                                                        </div>
-                                                    ) : (
-                                                        <div className="flex gap-1">
-                                                            {['A', 'B', 'C', 'D'].map(opt => (
-                                                                <button
-                                                                    key={opt}
-                                                                    onClick={() => {
-                                                                        const newQs = [...questions];
-                                                                        newQs[idx].correctOption = opt;
-                                                                        setQuestions(newQs);
-                                                                    }}
-                                                                    className={`w-8 h-8 rounded font-black text-xs border-2 transition-all ${q.correctOption === opt ? 'bg-blue-600 border-blue-600 text-white shadow-md scale-110' : 'bg-white border-gray-200 text-gray-400 hover:border-blue-300'}`}
-                                                                >
-                                                                    {opt}
-                                                                </button>
-                                                            ))}
-                                                        </div>
-                                                    )}
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-
-                            {/* Bulk Entry Side Panel */}
-                            <div className="w-full sm:w-72 bg-gray-50 p-6 flex flex-col gap-4 border-t sm:border-t-0">
-                                <div className="space-y-1">
-                                    <h4 className="text-sm font-black text-gray-800 uppercase tracking-tighter flex items-center gap-2">
-                                        <Zap size={16} className="text-yellow-500 fill-yellow-500" /> Bulk String Entry
-                                    </h4>
-                                    <span className="text-[10px] text-gray-500 leading-tight block">Paste your answer key here and we'll parse it.</span>
+                                                                ))}
+                                                            </div>
+                                                        )}
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
                                 </div>
-                                <textarea
-                                    className="flex-1 p-3 text-sm font-mono border-2 border-gray-200 rounded-xl focus:border-indigo-500 outline-none shadow-inner resize-none min-h-[150px]"
-                                    placeholder="Examples:&#10;1A 2B 3C&#10;1.D 2.A&#10;1:B 2:D"
-                                    value={quickMarkInput || ''}
-                                    onChange={(e) => setQuickMarkInput(e.target.value)}
-                                />
-                                <button
-                                    onClick={() => {
-                                        if (!quickMarkInput.trim()) return;
-                                        const newQs = [...questions];
-                                        // Robust pattern matching for Number + Answer (A/B/C/D)
-                                        const pairs = quickMarkInput.match(/(\d+)[.\s:-]*([ABCD])/gi);
-                                        if (pairs) {
-                                            pairs.forEach(pair => {
-                                                const match = pair.match(/(\d+)[.\s:-]*([ABCD])/i);
-                                                if (match) {
-                                                    const qNum = parseInt(match[1]);
-                                                    const ans = match[2].toUpperCase();
-                                                    if (qNum > 0 && qNum <= newQs.length) {
-                                                        const qIdx = qNum - 1;
-                                                        if (newQs[qIdx].type === 'mcq' || !newQs[qIdx].type) {
-                                                            newQs[qIdx].correctOption = ans;
-                                                        } else if (newQs[qIdx].type === 'msq') {
-                                                            if (!(newQs[qIdx].correctOptions || []).includes(ans)) {
-                                                                newQs[qIdx].correctOptions = [...(newQs[qIdx].correctOptions || []), ans];
+
+                                {/* Bulk Entry Side Panel */}
+                                <div className="w-full lg:w-80 bg-slate-50/50 p-6 flex flex-col gap-5 border-l border-slate-250/30 shrink-0">
+                                    <div className="space-y-1.5">
+                                        <h4 className="text-xs font-black text-slate-800 uppercase tracking-widest flex items-center gap-2">
+                                            <Zap size={14} className="text-amber-500 fill-amber-500" /> Bulk Answer Entry
+                                        </h4>
+                                        <p className="text-[10px] text-slate-500 font-semibold leading-normal">Paste your raw answer sheets here to automatically parse and apply them instantly.</p>
+                                    </div>
+                                    <textarea
+                                        className="flex-1 p-4 text-sm font-mono border border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 rounded-2xl bg-white outline-none shadow-inner resize-none min-h-[200px] transition-all"
+                                        placeholder="Examples:&#10;1A 2B 3C&#10;1.D 2.A&#10;1:B 2:D"
+                                        value={quickMarkInput || ''}
+                                        onChange={(e) => setQuickMarkInput(e.target.value)}
+                                        required
+                                    />
+                                    <button
+                                        onClick={() => {
+                                            if (!quickMarkInput.trim()) return;
+                                            const newQs = [...questions];
+                                            // Robust pattern matching for Number + Answer (A/B/C/D)
+                                            const pairs = quickMarkInput.match(/(\d+)[.\s:-]*([ABCD])/gi);
+                                            if (pairs) {
+                                                pairs.forEach(pair => {
+                                                    const match = pair.match(/(\d+)[.\s:-]*([ABCD])/i);
+                                                    if (match) {
+                                                        const qNum = parseInt(match[1]);
+                                                        const ans = match[2].toUpperCase();
+                                                        if (qNum > 0 && qNum <= newQs.length) {
+                                                            const qIdx = qNum - 1;
+                                                            if (newQs[qIdx].type === 'mcq' || !newQs[qIdx].type) {
+                                                                newQs[qIdx].correctOption = ans;
+                                                            } else if (newQs[qIdx].type === 'msq') {
+                                                                if (!(newQs[qIdx].correctOptions || []).includes(ans)) {
+                                                                    newQs[qIdx].correctOptions = [...(newQs[qIdx].correctOptions || []), ans];
+                                                                }
                                                             }
                                                         }
                                                     }
-                                                }
-                                            });
-                                            setQuestions(newQs);
-                                            setQuickMarkInput('');
-                                            alert("Bulk answers applied successfully!");
-                                        } else {
-                                            alert("No valid answer patterns found (e.g. 1A 2B)");
-                                        }
-                                    }}
-                                    className="w-full bg-indigo-600 text-white py-3 rounded-xl font-bold hover:bg-indigo-700 shadow-md transition-all active:scale-95"
-                                >
-                                    Parse & Apply
-                                </button>
-                                <div className="mt-auto p-3 bg-white rounded-lg border border-indigo-100 border-dashed">
-                                    <p className="text-[10px] text-indigo-700 font-bold uppercase italic text-center">Changes are synced to draft. Remember to click "Update Test" to save permanently.</p>
+                                                });
+                                                setQuestions(newQs);
+                                                setQuickMarkInput('');
+                                                alert("Bulk answers applied successfully!");
+                                            } else {
+                                                alert("No valid answer patterns found (e.g. 1A 2B)");
+                                            }
+                                        }}
+                                        className="w-full bg-indigo-600 text-white py-3.5 rounded-2xl font-black hover:bg-indigo-700 shadow-md hover:shadow-lg shadow-indigo-500/10 transition-all active:scale-95 text-xs uppercase tracking-wider flex items-center justify-center gap-2"
+                                    >
+                                        <Sparkles size={14} /> Parse & Apply
+                                    </button>
+                                    <div className="mt-auto p-4 bg-indigo-50/50 rounded-2xl border border-indigo-150 border-dashed text-center">
+                                        <p className="text-[10px] text-indigo-700 font-extrabold uppercase tracking-wide leading-relaxed">Changes sync directly to draft. Remember to click &quot;Save &amp; Sync&quot; to write to DB permanently.</p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <div className="p-4 bg-gray-100 border-t flex justify-end gap-3">
-                            <button
-                                onClick={() => {
-                                    if (confirm("Are you sure you want to clear ALL answers in the current draft?")) {
-                                        const newQs = questions.map(q => ({
-                                            ...q,
-                                            correctOption: '',
-                                            correctOptions: [],
-                                            integerAnswer: ''
-                                        }));
-                                        setQuestions(newQs);
-                                    }
-                                }}
-                                className="text-red-600 font-bold px-4 py-2 hover:bg-red-50 rounded-lg transition"
-                            >
-                                Clear All Draft Answers
-                            </button>
-                            <button
-                                onClick={async () => {
-                                    const res = await handleSubmitTest();
-                                    if (res !== false) {
-                                        setShowQuickMarkModal(false);
-                                    }
-                                }}
-                                className="bg-emerald-600 text-white px-8 py-2 rounded-lg font-black hover:bg-emerald-700 shadow-lg shadow-emerald-200 transition flex items-center gap-2"
-                            >
-                                <Save size={18} /> SAVE & SYNC TO DB
-                            </button>
-                            <button
-                                onClick={() => setShowQuickMarkModal(false)}
-                                className="bg-slate-800 text-white px-8 py-2 rounded-lg font-black hover:bg-slate-900 shadow-lg shadow-slate-200 transition"
-                            >
-                                Done
-                            </button>
-                        </div>
+                            <div className="p-4 sm:p-6 bg-white border-t border-slate-200/60 flex flex-col sm:flex-row justify-between items-center gap-4 shrink-0 shadow-sm">
+                                <button
+                                    onClick={() => {
+                                        if (confirm("Are you sure you want to clear ALL answers in the current draft?")) {
+                                            const newQs = questions.map(q => ({
+                                                ...q,
+                                                correctOption: '',
+                                                correctOptions: [],
+                                                integerAnswer: ''
+                                            }));
+                                            setQuestions(newQs);
+                                        }
+                                    }}
+                                    className="text-rose-600 font-black px-4 py-2 hover:bg-rose-50 rounded-xl transition-all text-sm flex items-center gap-1.5 hover:-translate-y-0.5 active:translate-y-0"
+                                >
+                                    <Trash2 size={16} /> Clear All Draft Answers
+                                </button>
+                                <div className="flex gap-3 w-full sm:w-auto justify-end">
+                                    <button
+                                        onClick={() => setShowQuickMarkModal(false)}
+                                        className="bg-slate-100 hover:bg-slate-200 text-slate-705 px-6 py-2.5 rounded-xl font-bold transition-all text-sm flex items-center gap-2 hover:-translate-y-0.5 active:translate-y-0 shadow-xs"
+                                    >
+                                        Done
+                                    </button>
+                                    <button
+                                        onClick={async () => {
+                                            const res = await handleSubmitTest();
+                                            if (res !== false) {
+                                                setShowQuickMarkModal(false);
+                                            }
+                                        }}
+                                        className="bg-emerald-600 text-white px-8 py-2.5 rounded-xl font-black hover:bg-emerald-700 shadow-md hover:shadow-lg shadow-emerald-500/10 transition-all flex items-center gap-2 hover:-translate-y-0.5 active:translate-y-0 text-sm"
+                                    >
+                                        <Save size={16} /> SAVE & SYNC TO DB
+                                    </button>
+                                </div>
+                            </div>
+                        </motion.div>
                     </div>
                 )
             }

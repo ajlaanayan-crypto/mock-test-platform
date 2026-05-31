@@ -23,6 +23,14 @@ router.get('/proxy', async (req, res) => {
         const { url } = req.query;
         if (!url) return res.status(400).send('URL required');
         
+        const decodedUrl = decodeURIComponent(url);
+        // SECURITY MITIGATION: Block SSRF vectors by restricting destinations strictly to GCS/Firebase Storage
+        if (!decodedUrl.startsWith('https://storage.googleapis.com/') && 
+            !decodedUrl.startsWith('https://firebasestorage.googleapis.com/')) {
+            console.warn(`⚠️ [Blocked SSRF Attempt] Request to proxy unauthorized destination: ${decodedUrl}`);
+            return res.status(403).send('Access denied: Unauthorized proxy destination');
+        }
+        
         const fetchHeaders = {};
         if (req.headers.range) {
             fetchHeaders['Range'] = req.headers.range;
@@ -158,25 +166,58 @@ router.put('/sections/:id', authorize('admin'), async (req, res) => {
     }
 });
 
-// DELETE /api/notes/sections/:id — Delete section
+// DELETE /api/notes/sections/:id — Delete section (cascading delete)
 router.delete('/sections/:id', authorize('admin'), async (req, res) => {
     try {
         const { id } = req.params;
 
-        // Check if section has subsections
-        const subsections = await db.collection('notesSections').where('parentId', '==', id).get();
-        if (!subsections.empty) {
-            return res.status(400).json({ error: 'Cannot delete section with subsections. Delete subsections first.' });
+        // Recursive helper to get all sub-section IDs
+        const getDescendantSections = async (parentSectionId) => {
+            const ids = [];
+            const queue = [parentSectionId];
+            while (queue.length > 0) {
+                const currentId = queue.shift();
+                const subsSnap = await db.collection('notesSections').where('parentId', '==', currentId).get();
+                subsSnap.docs.forEach(doc => {
+                    ids.push(doc.id);
+                    queue.push(doc.id);
+                });
+            }
+            return ids;
+        };
+
+        const descendantIds = await getDescendantSections(id);
+        const allSectionIds = [id, ...descendantIds];
+
+        // Fetch all notes belonging to any of these section IDs
+        const notesToDelete = [];
+        for (const secId of allSectionIds) {
+            const notesSnap = await db.collection('notes').where('sectionId', '==', secId).get();
+            notesSnap.docs.forEach(doc => {
+                notesToDelete.push({ id: doc.id, ...doc.data() });
+            });
         }
 
-        // Check if section has notes
-        const notes = await db.collection('notes').where('sectionId', '==', id).get();
-        if (!notes.empty) {
-            return res.status(400).json({ error: `Cannot delete section with ${notes.size} notes. Delete or move notes first.` });
+        // Delete PDFs from Storage and then delete notes from Firestore
+        const bucket = getBucket();
+        for (const note of notesToDelete) {
+            if (note.storagePath) {
+                try {
+                    await bucket.file(note.storagePath).delete();
+                    console.log(`✅ Deleted file from storage: ${note.storagePath}`);
+                } catch (storageErr) {
+                    console.warn(`⚠️ Failed to delete file from storage: ${storageErr.message}`);
+                }
+            }
+            await db.collection('notes').doc(note.id).delete();
         }
 
-        await db.collection('notesSections').doc(id).delete();
-        res.json({ success: true, message: 'Section deleted' });
+        // Delete all sections and subsections
+        for (const secId of allSectionIds) {
+            await db.collection('notesSections').doc(secId).delete();
+        }
+
+        res.json({ success: true, message: `Section and all its ${descendantIds.length} subsections and ${notesToDelete.length} notes deleted successfully.` });
     } catch (error) {
         console.error('Delete Section Error:', error);
         res.status(500).json({ error: error.message });

@@ -9,7 +9,16 @@ exports.getResultById = async (req, res) => {
         if (!resultDoc.exists) {
             return res.status(404).json({ message: 'Result not found' });
         }
-        res.status(200).json({ _id: resultDoc.id, ...resultDoc.data() });
+        
+        const resultData = resultDoc.data();
+        
+        // SECURITY CHECK: Ensure user owns this result or is admin
+        if (req.user.uid !== resultData.userId && req.user.role !== 'admin') {
+            console.warn(`❌ [Result IDOR Attempt] User ${req.user.uid} tried to read result belonging to User ${resultData.userId}`);
+            return res.status(403).json({ message: 'Unauthorized access to this result' });
+        }
+
+        res.status(200).json({ _id: resultDoc.id, ...resultData });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Server Error' });

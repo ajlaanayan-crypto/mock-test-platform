@@ -1,12 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const { createTest, updateTest, addQuestions, getAllTests, getTestById, submitTest } = require('../controllers/testController');
-const { protect, optionalProtect } = require('../middleware/authMiddleware');
+const { protect, optionalProtect, authorize } = require('../middleware/authMiddleware');
 
-router.post('/generate-shuffled', protect, require('../controllers/testController').generateShuffledMocks);
-router.post('/', protect, createTest);
-router.put('/:id', protect, updateTest);
-router.put('/:id/questions', addQuestions);
+router.post('/generate-shuffled', protect, authorize('admin'), require('../controllers/testController').generateShuffledMocks);
+router.post('/', protect, authorize('admin'), createTest);
+router.put('/:id', protect, authorize('admin'), updateTest);
+router.put('/:id/questions', protect, authorize('admin'), addQuestions);
 
 // Public/Protected split: Ideally these should be protected to know the user's field
 router.get('/series', optionalProtect, require('../controllers/testController').getAllSeries);
@@ -16,10 +16,10 @@ router.get('/:id', protect, getTestById);
 
 router.post('/:id/submit', protect, submitTest);
 router.post('/:id/feedback', protect, require('../controllers/testController').submitFeedback);
-router.delete('/:id', require('../controllers/testController').deleteTest);
+router.delete('/:id', protect, authorize('admin'), require('../controllers/testController').deleteTest);
 
 router.get('/:id/analytics', protect, require('../controllers/testController').getTestAnalytics);
-router.put('/:id/visibility', require('../controllers/testController').toggleVisibility);
+router.put('/:id/visibility', protect, authorize('admin'), require('../controllers/testController').toggleVisibility);
 // router.post('/:id/split', protect, require('../controllers/testController').splitTestBySubject);
 // router.post('/merge', protect, require('../controllers/testController').mergeTests);
 

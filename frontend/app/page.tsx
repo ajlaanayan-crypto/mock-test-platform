@@ -17,11 +17,13 @@ export default function LandingPage() {
   const { user } = useAuth();
   const [testSeries, setTestSeries] = useState<any[]>([]);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState<'login' | 'signup'>('login');
   const router = useRouter();
   const searchParams = useSearchParams();
 
   useEffect(() => {
     if (searchParams?.get('login') === 'true') {
+      setModalMode('login');
       setIsLoginModalOpen(true);
     }
   }, [searchParams]);
@@ -74,8 +76,14 @@ export default function LandingPage() {
     };
   }, []);
 
-  const openLogin = () => setIsLoginModalOpen(true);
-  const openSignup = () => setIsLoginModalOpen(true);
+  const openLogin = () => {
+    setModalMode('login');
+    setIsLoginModalOpen(true);
+  };
+  const openSignup = () => {
+    setModalMode('signup');
+    setIsLoginModalOpen(true);
+  };
 
   const handleEnrollment = async (series: any) => {
     if (!user) { alert('Please login to enroll.'); openLogin(); return; }
@@ -104,7 +112,7 @@ export default function LandingPage() {
   return (
     <>
       <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="lazyOnload" />
-      <GoogleLoginModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} />
+      <GoogleLoginModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} mode={modalMode} />
 
       {/* Fixed full-screen Vanta Clouds background */}
       <div
@@ -363,14 +371,11 @@ export default function LandingPage() {
         <footer className="pt-16 pb-8 px-6 md:px-10" style={{ background: '#0f172a', position: 'relative', zIndex: 1 }}>
           <div className="max-w-screen-xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
             <div className="md:col-span-2">
-              <img src="/logo.png" alt="Apex Mock Test" className="h-14 w-auto object-contain mb-4" />
+              <img src="/logo.png" alt="Apex Mock Test" className="h-14 w-auto object-contain mb-4 brightness-0 invert" />
               <p className="text-sm text-slate-400 leading-relaxed max-w-xs mb-4">
                 An initiative of SR Club. Providing premium educational assessments for aspirants across India.
               </p>
-              <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                <span className="text-xs font-bold uppercase tracking-widest text-emerald-400">System Operational</span>
-              </div>
+
             </div>
             <div>
               <h5 className="text-white font-bold mb-6 text-sm uppercase tracking-widest">Resources</h5>
