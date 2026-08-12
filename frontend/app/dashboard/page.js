@@ -7,7 +7,7 @@ const StudentDashboard = dynamic(() => import('@/components/Dashboard/StudentDas
 const AdminDashboard = dynamic(() => import('@/components/Dashboard/AdminDashboard'), { ssr: false });
 import DashboardLoader from '@/components/ui/DashboardLoader';
 
-import { LogOut, Sparkles } from 'lucide-react';
+import { LogOut } from 'lucide-react';
 
 export default function Dashboard() {
     const { user, loading, logout } = useAuth();
@@ -17,7 +17,6 @@ export default function Dashboard() {
         if (!loading && !user) {
             router.push('/');
         }
-        // If user is authenticated but hasn't completed signup (missing required fields)
         // If user is authenticated but hasn't completed signup (missing required fields)
         // Note: Field can be 'category' or 'selectedField' depending on schema version
         const hasField = user?.selectedField || user?.category;
