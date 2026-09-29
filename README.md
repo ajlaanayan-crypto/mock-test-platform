@@ -12,7 +12,7 @@
 ---
 
 ## 📅 Project Timeline
-- **Development Window**: **21 Jan – 5th June** (4.5 Months)
+- **Development Window**: **21 Jan 2026 – 5th June 2026** (4.5 Months)
 - **Role**: Full Stack Lead & System Architect
 - **Status**: Production-Ready / Deployed
 
