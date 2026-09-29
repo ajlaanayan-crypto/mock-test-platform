@@ -9,3 +9,23 @@ dist
 .vscode
 coverage
 backend/uploads
+
+# Auto-added standard ignores
+*$py.class
+*.env
+*.log
+*.py[cod]
+.env.*.local
+.next/
+.pnp.js
+.pnp/
+.pytest_cache/
+.turbo/
+.venv/
+Thumbs.db
+__pycache__/
+build/
+dist/
+env/
+node_modules/
+venv/

@@ -6,7 +6,7 @@ First, run the development server:
 
 ```bash
 npm run dev
-# or
+# Mock Test Platform — Frontend
 yarn dev
 # or
 pnpm dev
